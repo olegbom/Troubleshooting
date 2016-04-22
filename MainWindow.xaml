@@ -1,0 +1,49 @@
+﻿<Window x:Class="Troubleshooting.MainWindow"
+        x:Name="MyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ignore="http://www.galasoft.ch/ignore"
+        xmlns:controls="http://schemas.panthernet.ru/graphx/"
+        xmlns:troubleshooting="clr-namespace:Troubleshooting"
+        mc:Ignorable="d ignore"
+        Height="500"
+        Width="800"
+        Title="MVVM Light Application"
+        MouseDown="Window_MouseDown" 
+        MouseMove="Window_MouseMove" 
+        MouseUp="Window_MouseUp" 
+        MouseWheel="Window_MouseWheel">
+    
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Skins/MainSkin.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Canvas x:Name ="Canvas1">
+        <Canvas.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform CenterX="0" 
+                                CenterY="0" 
+                                ScaleY="{Binding Scale, ElementName=MyWindow}" 
+                                ScaleX="{Binding Scale, ElementName=MyWindow}"/>
+                <TranslateTransform X="{Binding X, ElementName=MyWindow}" 
+                                    Y="{Binding Y, ElementName=MyWindow}"/>
+            </TransformGroup>
+        </Canvas.RenderTransform>
+        <Path x:Name="MyPath" 
+              Stroke = "Black"
+              SnapsToDevicePixels = "True"
+              StrokeThickness = "20"
+              Visibility="{Binding ElementName = MyWindow, Path = LabelZVisibility}">
+            <Path.Data>
+                <PathGeometry x:Name="MyPathGeomentry"/>
+            </Path.Data>
+        </Path>
+    </Canvas>
+
+</Window>

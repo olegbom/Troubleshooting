@@ -1,0 +1,41 @@
+﻿<Window x:Class="Troubleshooting.DiagramEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Troubleshooting"
+        mc:Ignorable="d"
+        Title="DiagramEditor" Height="300" Width="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+
+        <Canvas Grid.Row="1" x:Name="DiagramCanvas">
+            <local:Node x:Name="Node1" 
+                        Text ="1" X="10" Y="10" 
+                        MouseDown="Node_MouseDown" 
+                        MouseMove="Node_MouseMove" 
+                        MouseUp="Node_MouseUp"/>
+            <local:Node x:Name="Node2"
+                        Text ="2" X="60" Y="10"
+                        MouseDown="Node_MouseDown" 
+                        MouseMove="Node_MouseMove" 
+                        MouseUp="Node_MouseUp"/>
+            <local:Node x:Name="Node3" 
+                        Text ="3" X="110" Y="10"
+                        MouseDown="Node_MouseDown" 
+                        MouseMove="Node_MouseMove" 
+                        MouseUp="Node_MouseUp"/>
+
+        </Canvas>
+        <Menu Grid.Row="0" >
+            <MenuItem Header="Добавить новый блок" Click="MenuItem_Click_CreateNewBlock" ></MenuItem>
+        </Menu>
+        
+        
+    </Grid>
+</Window>
