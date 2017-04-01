@@ -115,31 +115,27 @@ namespace Troubleshooting
 
         public void AddMyTableToCanvas(MyTable myTable, double left = 0, double top = 0)
         {
-            Grid grid = myTable.GetGrid();
-            Canvas1.Children.Add(grid);
-            Canvas.SetTop(grid, top);
-            Canvas.SetLeft(grid, left);
-
-            double horizontalTranslate = 4000/Math.Pow(2, myTable.Level - 1);
-
             
+            Grid metaGrid = new Grid();
+            for (int i = 0, count = myTable.Nums.Length; i < count; i++)
+                metaGrid.ColumnDefinitions.Add(new ColumnDefinition());
+            for (int i = 0, count = myTable.TableDepth; i < count; i++)
+                metaGrid.RowDefinitions.Add(new RowDefinition());
 
-            if (myTable.Childrens.Any())
-            {
-                top += 300;
-                AddMyTableToCanvas(myTable.Childrens[0], left - horizontalTranslate, top);
-                AddMyTableToCanvas(myTable.Childrens[1], left + horizontalTranslate, top);
-
-                //PathFigure figure = new PathFigure();
-                //figure.StartPoint = new Point(left, top - 150);
-                //figure.Segments.Add(new LineSegment(new Point(left - horizontalTranslate + grid.ActualHeight/2, top - 150), true));
-                //MyPathGeomentry.Figures.Add(figure);
-            }
-
-           
+            AddMyTableToMetaGrid(metaGrid, myTable, 0, 0);
+            Canvas1.Children.Add(metaGrid);
         }
 
-
+        public void AddMyTableToMetaGrid(Grid metaGrid, MyTable myTable, int column, int row)
+        {
+            Grid grid = myTable.GetGrid();
+            metaGrid.AddChildren(grid, column, row, myTable.Nums.Length, 1, default(Color), false);
+            if (myTable.Childrens.Any())
+            {
+                AddMyTableToMetaGrid(metaGrid, myTable.Childrens[0], column, row + 1);
+                AddMyTableToMetaGrid(metaGrid, myTable.Childrens[1], column + myTable.Childrens[0].Nums.Length, row + 1);
+            }
+        }
 
 
 

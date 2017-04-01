@@ -15,13 +15,23 @@ namespace Troubleshooting
 {
     public class MyTable
     {
-        public List<MyTable> Childrens = new List<MyTable>();  
+        public List<MyTable> Childrens { get; } = new List<MyTable>();
+
+        public int TableDepth
+        {
+            get
+            {
+                if (Childrens.Any()) return Math.Max(Childrens[0].TableDepth, Childrens[1].TableDepth);
+                return Level;
+            }
+        }
+
         public int Level { get; }
-        public int[,] Workings;
-        public int[] Nums;
-        public int[] Ones;
-        public int[] Zeros;
-        public int[] W;
+        public int[,] Workings { get; }
+        public int[] Nums { get; }
+        public int[] Ones { get; }
+        public int[] Zeros { get; }
+        public int[] W { get; }
 
         public MyTable(FunctionalDiagram diagram)
         {
@@ -84,13 +94,14 @@ namespace Troubleshooting
         {
             for (int i = 0; i < Ones.Length; i++)
             {
-                Ones[i] = 0;
-                for (int j = 0; j < Nums.Length; j++)
-                {
-                    Ones[i] += Workings[i, j];
-                }
-                Zeros[i] = Nums.Length - Ones[i];
-                W[i] = Math.Abs(Zeros[i] - Ones[i]);
+                var ones = 0;
+                var numLenght = Nums.Length;
+                for (int j = 0; j < numLenght; j++)
+                    ones += Workings[i, j];
+                var zeros = numLenght - ones;
+                Ones[i] = ones;
+                Zeros[i] = zeros;
+                W[i] = Math.Abs(zeros - ones);
             }
         }
 
@@ -117,57 +128,137 @@ namespace Troubleshooting
 
         public Grid GetGrid()
         {
-            Grid superGrid = new Grid();
-
+            Grid superGrid = new Grid()
+            {
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Top, 
+                Margin = new Thickness(4,0,4,2)
+            };
+            Grid labelGrid = new Grid();
             
+            TextBlock tb = new TextBlock
+            {
+                Text = $"Z{Nums[W.IndexOfMin()] + 1}",
+                FontSize = 14,
+                Margin = new Thickness(2,0,2,0),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            labelGrid.Children.Add(tb);
+          
+            superGrid.Children.Add(labelGrid);
 
-            Grid grid = new Grid() {VerticalAlignment = VerticalAlignment.Top};
+            if (Nums.Length > 1) // 
+            {
+                //var grid = GenerateInfluenceGrid();
+                //superGrid.Children.Add(grid);
+                Rectangle rect = new Rectangle
+                {
+                    Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),
+                    StrokeThickness = 1,
+                    SnapsToDevicePixels = true,
+                };
+                labelGrid.Children.Add(rect);
+
+                Path path = new Path()
+                {
+                    SnapsToDevicePixels = true,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 1
+                };
+                PathGeometry geometry = new PathGeometry(new []
+                {
+                    new PathFigure(new Point(0,labelGrid.ActualWidth/2), new []
+                    {
+                        new LineSegment(new Point(-10,labelGrid.ActualWidth/2), true ),
+                        new LineSegment(new Point(-10, labelGrid.ActualWidth), true ), 
+                    } , false ),
+                    new PathFigure(new Point(labelGrid.ActualHeight,labelGrid.ActualWidth/2), new []
+                    {
+                        new LineSegment(new Point(10,labelGrid.ActualWidth/2), true ),
+                        new LineSegment(new Point(10, labelGrid.ActualWidth), true ),
+                    } , false ),
+                });
+                path.Data = geometry;
+                labelGrid.Children.Add(path);
+                // labelGrid.SetBinding(Grid.VisibilityProperty,
+                //   new Binding("LabelZVisibility") {ElementName = "MyWindow"});
+            }
+            else
+            {
+                Rectangle rect = new Rectangle
+                {
+                    Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),
+                    StrokeThickness = 1,
+                    SnapsToDevicePixels = true,
+                    RadiusX = 5,
+                    RadiusY = 5
+                };
+                labelGrid.Children.Add(rect);
+            }
+
+
+
+            return superGrid;
+        }
+
+        private Grid GenerateInfluenceGrid()
+        {
+            Grid grid = new Grid
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                
+            };
             for (int i = 0, count = Nums.Length + 4; i < count; i++)
                 grid.ColumnDefinitions.Add(new ColumnDefinition());
             for (int i = 0, count = Nums.Length + 2; i < count; i++)
                 grid.RowDefinitions.Add(new RowDefinition());
-            
+
             grid.AddChildren(new TextBlock
             {
-                Text = "Zi", Width = 30,
+                Text = "Zi",
+                Width = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center
-            }, 0,0);
+            }, 0, 0);
 
 
-            grid.AddChildren(new TextBlock {
+            grid.AddChildren(new TextBlock
+            {
                 Text = "Состояние блока Si",
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
-            }, 1,0,Nums.Length);
+            }, 1, 0, Nums.Length);
             grid.AddChildren(new TextBlock
             {
-                Text = "Число\nсостояний" ,
+                Text = "Число\nсостояний",
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(5,0,5,0)
-            }, Nums.Length+1, 0,2);
+                Margin = new Thickness(5, 0, 5, 0)
+            }, Nums.Length + 1, 0, 2);
             grid.AddChildren(new TextBlock
             {
-                Text = "Wi", Width = 25,
+                Text = "Wi",
+                Width = 25,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center
-            }, Nums.Length+3, 0);
+            }, Nums.Length + 3, 0);
 
-            grid.AddChildren(new TextBlock { Text = ""}, 0, 1);
+            grid.AddChildren(new TextBlock {Text = ""}, 0, 1);
             for (int i = 0; i < Nums.Length; i++)
             {
-                grid.AddChildren(new TextBlock { Text = $"{Nums[i]+1}", Width = 25 , TextAlignment = TextAlignment.Center }, i+1, 1);
+                grid.AddChildren(new TextBlock {Text = $"{Nums[i] + 1}", Width = 25, TextAlignment = TextAlignment.Center},
+                    i + 1, 1);
             }
-            grid.AddChildren(new TextBlock { Text = "0", HorizontalAlignment = HorizontalAlignment.Center }, Nums.Length + 1, 1);
-            grid.AddChildren(new TextBlock { Text = "1", HorizontalAlignment = HorizontalAlignment.Center }, Nums.Length + 2, 1);
-            grid.AddChildren(new TextBlock { Text = "" }, Nums.Length + 3, 1);
-            var minWIndex = W.IndexOfMin();
+            grid.AddChildren(new TextBlock {Text = "0", HorizontalAlignment = HorizontalAlignment.Center}, Nums.Length + 1, 1);
+            grid.AddChildren(new TextBlock {Text = "1", HorizontalAlignment = HorizontalAlignment.Center}, Nums.Length + 2, 1);
+            grid.AddChildren(new TextBlock {Text = ""}, Nums.Length + 3, 1);
+
             for (int i = 0; i < Nums.Length; i++)
             {
-                var color = (i == minWIndex) ? Color.FromArgb(255, 173, 216, 230) : default(Color);
+                var color = (i == W.IndexOfMin()) ? Color.FromArgb(255, 173, 216, 230) : default(Color);
                 grid.AddChildren(new TextBlock
                 {
                     Text = $"Z{Nums[i] + 1}",
@@ -176,10 +267,10 @@ namespace Troubleshooting
                 for (int j = 0; j < Nums.Length; j++)
                 {
                     grid.AddChildren(new TextBlock
-                    {
-                        Text = $"{Workings[i, j]}",
-                        HorizontalAlignment = HorizontalAlignment.Center
-                    }, j + 1, i + 2, 1, 1,
+                        {
+                            Text = $"{Workings[i, j]}",
+                            HorizontalAlignment = HorizontalAlignment.Center
+                        }, j + 1, i + 2, 1, 1,
                         (Workings[i, j] == 1)
                             ? Color.Add(
                                 Color.FromArgb(255, 245, 245, 220),
@@ -206,69 +297,10 @@ namespace Troubleshooting
                 }, Nums.Length + 3, i + 2, 1, 1, color);
             }
 
-            superGrid.Children.Add(grid);
-            Grid labelGrid = new Grid();
-            Rectangle rect = new Rectangle
-            {
-                Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),
-                StrokeThickness = 20,
-                SnapsToDevicePixels = true,
-            };
-            labelGrid.Children.Add(rect);
-            
-
-            TextBlock tb = new TextBlock
-            {
-                Text = $"Z{Nums[minWIndex] + 1}",
-                FontSize = 200,
-                Margin = new Thickness(50,0,50,0),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                
-            };
-            labelGrid.Children.Add(tb);
-            labelGrid.SetBinding(Grid.VisibilityProperty,
-                new Binding("LabelZVisibility"){ElementName = "MyWindow"});
             grid.SetBinding(Grid.VisibilityProperty,
-                new Binding("GridsVisibility"){ElementName = "MyWindow"});
+                new Binding("GridsVisibility") { ElementName = "MyWindow" });
 
-
-
-            superGrid.Children.Add(labelGrid);
-            double horizontalTranslate = 4000 / Math.Pow(2, Level - 1);
-            Path path = new Path();
-            path.StrokeThickness = 20;
-            path.Stroke = Brushes.Black;
-            path.SnapsToDevicePixels = true;
-            PathGeometry pathGeometry = new PathGeometry();
-            pathGeometry.Figures.Add(new PathFigure(
-                new Point(0, 150),
-                new[]
-                {
-                    new LineSegment(
-                        new Point(tb.Height/2 - horizontalTranslate,150),
-                        true),
-                    new LineSegment(
-                        new Point(tb.Height/2 - horizontalTranslate,300),
-                        true),
-                }, false));
-            pathGeometry.Figures.Add(new PathFigure(
-                new Point(rect.Height, 150),
-                new[]
-                {
-                    new LineSegment(
-                        new Point(tb.Height*3/2 + horizontalTranslate,150),
-                        true),
-                    new LineSegment(
-                        new Point(tb.Height*3/2 + horizontalTranslate,300),
-                        true),
-                }, false));
-            path.Data = pathGeometry;
-            labelGrid.Children.Add(path);
-
-            return superGrid;
+            return grid;
         }
-
-
     }
 }

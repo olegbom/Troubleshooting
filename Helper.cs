@@ -63,27 +63,26 @@ namespace Troubleshooting
             return maxIndex;
         }
 
-        public static void AddChildren(this Grid grid, UIElement element, int column, int row, int columnSnap = 1, int rowSnap = 1, Color color = default(Color))
+        public static void AddChildren(this Grid grid, UIElement element, int column, int row, int columnSnap = 1, int rowSnap = 1, Color color = default(Color), bool rectDraw = true)
         {
-            Rectangle rect = new Rectangle
+            if (rectDraw)
             {
-                Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),
-                Fill = new SolidColorBrush(color),
-                Margin = new Thickness(-0.5)
-            };
+                Rectangle rect = new Rectangle
+                {
+                    Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 0, 0)),
+                    Fill = new SolidColorBrush(color),
+                    Margin = new Thickness(-0.5)
+                };
 
-            Grid.SetColumn(rect, column);
-            Grid.SetRow(rect, row);
 
-            Grid.SetColumn(rect, column);
-            Grid.SetRow(rect, row);
-            if (columnSnap > 1) Grid.SetColumnSpan(rect, columnSnap);
-            if (rowSnap > 1) Grid.SetRowSpan(rect, rowSnap);
-            rect.SnapsToDevicePixels = true;
-            grid.Children.Add(rect);
 
-            Grid.SetColumn(element,column);
-            Grid.SetRow(element,row);
+                Grid.SetColumn(rect, column);
+                Grid.SetRow(rect, row);
+                if (columnSnap > 1) Grid.SetColumnSpan(rect, columnSnap);
+                if (rowSnap > 1) Grid.SetRowSpan(rect, rowSnap);
+                rect.SnapsToDevicePixels = true;
+                grid.Children.Add(rect);
+            }
             
             Grid.SetColumn(element, column);
             Grid.SetRow(element, row);

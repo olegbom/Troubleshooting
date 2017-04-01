@@ -112,7 +112,6 @@
       <DependentUpon>DiagramEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="DoubleToVisibilityConverter.cs" />
-    <Compile Include="DragBehavior.cs" />
     <Compile Include="EditableTextBlock.cs" />
     <Compile Include="EditableTextBlockAdorner.cs" />
     <Compile Include="FunctionalDiagram.cs" />
