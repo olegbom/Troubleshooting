@@ -9,7 +9,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using Troubleshooting.Annotations;
-using Troubleshooting.ViewModel;
+using Troubleshooting.Views;
+
 
 namespace Troubleshooting
 {
@@ -54,7 +55,7 @@ namespace Troubleshooting
             {
                 if (_x == value) return;
                 _x = value;
-                OnPropertyChanged(nameof(X));
+                OnPropertyChanged();
             }
         }
 
@@ -66,7 +67,7 @@ namespace Troubleshooting
             {
                 if (_y == value) return;
                 _y = value;
-                OnPropertyChanged(nameof(Y));
+                OnPropertyChanged();
             }
         }
 
@@ -75,9 +76,9 @@ namespace Troubleshooting
         public MainWindow()
         {
             InitializeComponent();
-            Closing += (s, e) => ViewModelLocator.Cleanup();
+            
             FunctionalDiagram diagram = new FunctionalDiagram(26);
-            DiagramEditor diagramEditor = new DiagramEditor();
+            DiagramEditorView diagramEditor = new DiagramEditorView();
             diagramEditor.ShowDialog();
             diagram.Connect(1,2,3);
             diagram.Connect(2,4);
