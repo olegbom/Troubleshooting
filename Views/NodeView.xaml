@@ -46,8 +46,8 @@
                 <Rectangle StrokeThickness="3" Stroke="Green" SnapsToDevicePixels="True" Margin="-3"
                             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  StrokeDashArray="3 2"/>
                 <Rectangle x:Name ="RectSizeBR"  Style="{StaticResource EditRectangle}" Stroke="CadetBlue" Fill="SkyBlue"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Cursor="SizeNWSE" MouseDown="RectSizeBR_OnMouseDown"/>
-                <Rectangle x:Name ="ConnectorOut" Style="{StaticResource EditRectangle}" Stroke="DarkOrange" Fill="OrangeRed"  VerticalAlignment="Center" HorizontalAlignment="Right" Cursor="Cross"/>
-                <Rectangle x:Name ="ConnectorIn" Style="{StaticResource EditRectangle}" Stroke="DarkOrange" Fill="GreenYellow"  VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <Rectangle x:Name ="ConnectorOut" Style="{StaticResource EditRectangle}" Stroke="DarkOrange" Fill="OrangeRed"  VerticalAlignment="Center" HorizontalAlignment="Right" Cursor="Cross" MouseDown="ConnectorOut_OnMouseDown"/>
+                <Rectangle x:Name ="ConnectorIn" Style="{StaticResource EditRectangle}" Stroke="DarkOrange" Fill="GreenYellow"  VerticalAlignment="Center" HorizontalAlignment="Left" MouseUp="ConnectorIn_OnMouseUp"/>
 
             </Grid>
 

@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
 
 
-        <ItemsControl ItemsSource="{Binding Path=Nodes}" x:Name="DiagramCanvas" Grid.Row="1" >
+        <ItemsControl ItemsSource="{Binding DiagramItems}" x:Name="DiagramCanvas" Grid.Row="1" >
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Canvas/>
@@ -29,15 +29,26 @@
                     <Setter Property="Canvas.Top" Value="{Binding Y}"/>
                 </Style>
             </ItemsControl.ItemContainerStyle>
-            <ItemsControl.ItemTemplate>
+            <ItemsControl.Resources>
                 <DataTemplate DataType="{x:Type vm:NodeViewModel}">
                     <local:NodeView DataContext="{Binding}" 
                                     BorderMoveMouseDown="Node_OnBorderMoveMouseDown"
-                                    RectSizeMouseDown="NodeView_OnRectSizeMouseDown"/>
+                                    RectSizeMouseDown="NodeView_OnRectSizeMouseDown"
+                                    ConnectorOutMouseDown="NodeView_OnConnectorOutMouseDown"
+                                    ConnectorInMouseUp="NodeView_OnConnectorInMouseUp"
+                                    MouseEnter="NodeView_OnMouseEnter"
+                                    MouseLeave="NodeView_OnMouseLeave"
+                                    MouseUp="NodeView_OnMouseUp"
+                                    MouseMove="NoseView_OnMouseMove"/>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
+                    <local:ConnectionView DataContext="{Binding}"/>
+                </DataTemplate>
+            </ItemsControl.Resources>
         </ItemsControl>
 
+        
+        
         <Menu Grid.Row="0" >
             <MenuItem Header="Добавить новый блок" Click="MenuItemNewBlock_OnClick" ></MenuItem>
         </Menu>

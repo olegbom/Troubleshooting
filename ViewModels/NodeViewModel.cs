@@ -6,13 +6,37 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Markup;
+using PropertyChanged;
 using Troubleshooting.Annotations;
 
 namespace Troubleshooting.ViewModels
 {
     public class NodeViewModel:INotifyPropertyChanged
     {
+
+        private ConnectionViewModel _connectionOut;
+
+        public ConnectionViewModel ConnectionOut
+        {
+            get
+            {
+                return _connectionOut;
+            }
+            set
+            {
+                if (value == _connectionOut) return;
+                _connectionOut = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [DependsOn(nameof(X), nameof(Width), nameof(Y), nameof(Height))]
+        public Point ConnectorOutPos => new Point(X + Width, Y + Height / 2);
+
+        [DependsOn(nameof(X), nameof(Y), nameof(Height))]
+        public Point ConnectorInPos => new Point(X, Y + Height / 2);
+
+
         private string _text;
 
         public string Text

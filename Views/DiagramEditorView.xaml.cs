@@ -20,7 +20,8 @@ namespace Troubleshooting.Views
     {
         None,
         DraggingNode, 
-        ResizeNode
+        ResizeNode, 
+        ConnectionRoute
     }
     /// <summary>
     /// Логика взаимодействия для DiagramEditorView.xaml
@@ -59,6 +60,7 @@ namespace Troubleshooting.Views
                         {
                             intersectsNode.IntersectsMode = true;
                         }
+                        e.Handled = true;
                         break;
                     case MouseHandlingMode.ResizeNode:
                         NodeViewModel resizeNodeViewModel = ResizeNodeView.ViewModel;
@@ -79,6 +81,12 @@ namespace Troubleshooting.Views
                         {
                             intersectsNode.IntersectsMode = true;
                         }
+                        e.Handled = true;
+                        break;
+                    case MouseHandlingMode.ConnectionRoute:
+                        curContentPoint = e.GetPosition(DiagramCanvas);
+                        ConnectionRoute.EndPoint = curContentPoint;
+                        
                         break;
                 }
             };
@@ -90,20 +98,26 @@ namespace Troubleshooting.Views
                     mouseHandlingMode = MouseHandlingMode.None;
                     if (intersectsNode != null) intersectsNode.IntersectsMode = false;
                     DraggedNodeView.ReleaseMouseCapture();
-                    //e.Handled = true;
+                    e.Handled = true;
                 }
                 else if (mouseHandlingMode == MouseHandlingMode.ResizeNode)
                 {
                     mouseHandlingMode = MouseHandlingMode.None;
                     if (intersectsNode != null) intersectsNode.IntersectsMode = false;
                     ResizeNodeView.ReleaseMouseCapture();
-                    //e.Handled = true;
+                    e.Handled = true;
+                }else if (mouseHandlingMode == MouseHandlingMode.ConnectionRoute)
+                {
+                    mouseHandlingMode = MouseHandlingMode.None;
+                    ViewModel.Connections.Remove(ConnectionRoute);
+                    
                 }
             };
         }
 
         private NodeView DraggedNodeView;
         private NodeView ResizeNodeView;
+        private ConnectionViewModel ConnectionRoute;
         private MouseHandlingMode mouseHandlingMode = MouseHandlingMode.None;
         private Point origContentMouseDownPoint;
 
@@ -148,10 +162,77 @@ namespace Troubleshooting.Views
             }
         }
 
+        private void NodeView_OnConnectorOutMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
+                return;
+
+            if (mouseHandlingMode != MouseHandlingMode.None)
+                return;
+            origContentMouseDownPoint = e.GetPosition(DiagramCanvas);
+
+            if (sender is NodeView node)
+            {
+                ConnectionViewModel connectionViewModel = new ConnectionViewModel(node.ViewModel);
+                ViewModel.Connections.Add(connectionViewModel);
+                mouseHandlingMode = MouseHandlingMode.ConnectionRoute;
+                ConnectionRoute = connectionViewModel;
+                
+            }
+        }
+        private void NodeView_OnConnectorInMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
+                return;
+
+            if (mouseHandlingMode != MouseHandlingMode.ConnectionRoute)
+                return;
+
+            if (sender is NodeView node)
+            {
+                
+                mouseHandlingMode = MouseHandlingMode.None;
+                ConnectionRoute.SinkNode = node.ViewModel;
+            }
+            
+
+        }
+
         private void MenuItemNewBlock_OnClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel nodeViewModel = new NodeViewModel{Text = "Название", X = 50, Y = 50};
             ViewModel.Nodes.Add(nodeViewModel);
+        }
+
+
+        private void NodeView_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is NodeView node)
+            {
+                
+                node.ViewModel.EditMode = true;
+                e.Handled = true;
+            }
+        }
+
+        private void NodeView_OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            if (sender is NodeView node)
+            {
+                node.ReleaseMouseCapture();
+                node.ViewModel.EditMode = false;
+                e.Handled = true;
+            }
+        }
+
+        private void NodeView_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var r = e.Handled;
+        }
+
+        private void NoseView_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            var r = e.Handled;
         }
     }
 }
