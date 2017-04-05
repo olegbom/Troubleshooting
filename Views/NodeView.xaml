@@ -14,8 +14,9 @@
              Height="{Binding Height}">
     
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis"></BooleanToVisibilityConverter>
-        <conv:BoolToBrushConverter x:Key="IntersectsConverter"></conv:BoolToBrushConverter>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:BoolToBrushConverter x:Key="IntersectsConverter"/>
+        <conv:BoolToBrushConverter TrueBrush="AliceBlue" x:Key="PreSelectConverter"/>
         <Style x:Key="EditRectangle" TargetType="Rectangle">
             <Setter Property="Stroke" Value="CadetBlue"/>
             <Setter Property="StrokeThickness" Value="1"/>
@@ -26,33 +27,42 @@
             <Setter Property="Margin" Value="-4"/>
         </Style>
     </UserControl.Resources>
+    <Grid>
+        <Rectangle IsHitTestVisible="{Binding InvSelectMode, Mode=OneWay}" Fill="White"/>
+        <Border x:Name="BorderMove"
+                BorderThickness="1"
+                BorderBrush="{Binding Path = IntersectsMode, Mode=OneWay, Converter={StaticResource IntersectsConverter}}"
+                Background="{Binding BackgroundFillBrush, Mode=OneWay}"
+                IsHitTestVisible="{Binding SelectMode, Mode=OneWay}"
+                Margin="3"
+                Cursor="SizeAll"
+                MouseLeftButtonDown="BorderMove_OnMouseDown">
+            <Grid>
+                <troubleshooting:EditableTextBlock x:Name="Label"
+                                                   Text="{Binding Text}" Margin="10"
+                                                   FontFamily="Times New Roman"
+                                                   FontSize="14"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   SnapsToDevicePixels="True" Cursor="IBeam" />
+                <Grid Visibility="{Binding Path = EditMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                    <Rectangle StrokeThickness="3" Stroke="Green" SnapsToDevicePixels="True" Margin="-3"
+                               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" StrokeDashArray="3 2" />
+                    <Rectangle x:Name="RectSizeBR" Style="{StaticResource EditRectangle}" Stroke="CadetBlue"
+                               Fill="SkyBlue" VerticalAlignment="Bottom" HorizontalAlignment="Right" Cursor="SizeNWSE"
+                               MouseDown="RectSizeBR_OnMouseDown" />
+                    <Rectangle x:Name="ConnectorOut" Style="{StaticResource EditRectangle}" Stroke="DarkOrange"
+                               Fill="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Right" Cursor="Cross"
+                               MouseDown="ConnectorOut_OnMouseDown" />
+                    <Rectangle x:Name="ConnectorIn" Style="{StaticResource EditRectangle}" Stroke="DarkOrange"
+                               Fill="GreenYellow" VerticalAlignment="Center" HorizontalAlignment="Left"
+                               MouseUp="ConnectorIn_OnMouseUp" />
 
-    <Border x:Name ="BorderMove" 
-            BorderThickness="1" 
-            BorderBrush="{Binding Path = IntersectsMode, Converter={StaticResource IntersectsConverter}}" 
-            Background="White" 
-            Margin ="3" 
-            Cursor="SizeAll"
-            MouseDown="BorderMove_OnMouseDown">
-        <Grid>
-            <troubleshooting:EditableTextBlock x:Name ="Label" 
-                                        Text="{Binding Text}" Margin="10" 
-                                        FontFamily ="Times New Roman" 
-                                        FontSize="14"
-                                        VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center"
-                                        SnapsToDevicePixels="True" Cursor="IBeam"/>
-            <Grid Visibility="{Binding Path = EditMode, Converter={StaticResource BoolToVis}}">
-                <Rectangle StrokeThickness="3" Stroke="Green" SnapsToDevicePixels="True" Margin="-3"
-                            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  StrokeDashArray="3 2"/>
-                <Rectangle x:Name ="RectSizeBR"  Style="{StaticResource EditRectangle}" Stroke="CadetBlue" Fill="SkyBlue"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Cursor="SizeNWSE" MouseDown="RectSizeBR_OnMouseDown"/>
-                <Rectangle x:Name ="ConnectorOut" Style="{StaticResource EditRectangle}" Stroke="DarkOrange" Fill="OrangeRed"  VerticalAlignment="Center" HorizontalAlignment="Right" Cursor="Cross" MouseDown="ConnectorOut_OnMouseDown"/>
-                <Rectangle x:Name ="ConnectorIn" Style="{StaticResource EditRectangle}" Stroke="DarkOrange" Fill="GreenYellow"  VerticalAlignment="Center" HorizontalAlignment="Left" MouseUp="ConnectorIn_OnMouseUp"/>
+                </Grid>
+
 
             </Grid>
-
-
-        </Grid>
-    </Border>
+        </Border>
+    </Grid>
 </UserControl>
 

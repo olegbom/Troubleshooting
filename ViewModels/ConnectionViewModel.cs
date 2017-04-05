@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using PropertyChanged;
 using Troubleshooting.Annotations;
@@ -27,6 +22,7 @@ namespace Troubleshooting.ViewModels
                 if (_sinkNode != null) _sinkNode.PropertyChanged -= SinkNode_PropertyChanged;
                 _sinkNode = value;
                 _sinkNode.PropertyChanged += SinkNode_PropertyChanged;
+                EndPoint = _sinkNode.ConnectorInPos;
                 OnPropertyChanged();
             }
         }
@@ -84,7 +80,10 @@ namespace Troubleshooting.ViewModels
         {
             SourceNode = source;
             source.ConnectionOut = this;
+            StartPoint = SourceNode.ConnectorOutPos;
+            EndPoint = SourceNode.ConnectorOutPos;
             SourceNode.PropertyChanged += SourceNode_PropertyChanged;
+
         }
 
         private void SourceNode_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -102,7 +101,6 @@ namespace Troubleshooting.ViewModels
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            Console.WriteLine(propertyName);
         }
     }
 }

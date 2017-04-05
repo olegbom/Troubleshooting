@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows.Markup.Localizer;
 
 namespace Troubleshooting
 {
@@ -13,7 +8,6 @@ namespace Troubleshooting
         public List<Block> Childrens = new List<Block>();
         public List<Block> Parents = new List<Block>();
        
-
         public int Number;
         public bool Working; 
 

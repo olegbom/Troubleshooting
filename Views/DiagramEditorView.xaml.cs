@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Troubleshooting.ViewModels;
 
 namespace Troubleshooting.Views
@@ -21,7 +13,8 @@ namespace Troubleshooting.Views
         None,
         DraggingNode, 
         ResizeNode, 
-        ConnectionRoute
+        ConnectionRoute,
+        SelectRect
     }
     /// <summary>
     /// Логика взаимодействия для DiagramEditorView.xaml
@@ -35,6 +28,18 @@ namespace Troubleshooting.Views
             InitializeComponent();
 
 
+            MouseDown += (o, e) =>
+            {
+
+                origContentMouseDownPoint = e.GetPosition(DiagramCanvas);
+                mouseHandlingMode = MouseHandlingMode.SelectRect;
+                ViewModel.SelectRectangle.Visible = true;
+                ViewModel.SelectRectangle.X = origContentMouseDownPoint.X;
+                ViewModel.SelectRectangle.Y = origContentMouseDownPoint.Y;
+                ViewModel.SelectRectangle.Point2 = new Point(0,0);
+                e.Handled = true;
+            };
+
             NodeViewModel intersectsNode = null;
             MouseMove += (o, e) =>
             {
@@ -46,19 +51,25 @@ namespace Troubleshooting.Views
                         curContentPoint = e.GetPosition(DiagramCanvas);
                         Vector dragVector = curContentPoint - origContentMouseDownPoint;
                        
-                        Point newPosition = draggedNodeViewModel.OldPosition + dragVector;
+                        
 
-                        if (intersectsNode != null) intersectsNode.IntersectsMode = false;
-                        intersectsNode =
+                        foreach (var n in ViewModel.Nodes)
+                            n.IntersectsMode = false;
+                        
+                        foreach (var draggedNode in DraggedNodeViewModels)
+                        {
+                            Point newPosition = draggedNode.OldPosition + dragVector;
+                            intersectsNode =
                             ViewModel.Nodes.FirstOrDefault(
                                 nodeViewModel =>
-                                    nodeViewModel != draggedNodeViewModel &&
-                                    draggedNodeViewModel.IntersectsWith(nodeViewModel, newPosition));
-                        if(intersectsNode == null)
-                            draggedNodeViewModel.Position = newPosition;
-                        else
-                        {
-                            intersectsNode.IntersectsMode = true;
+                                    nodeViewModel != draggedNode &&
+                                    draggedNode.IntersectsWith(nodeViewModel, newPosition));
+                            if (intersectsNode == null)
+                                draggedNode.Position = newPosition;
+                            else
+                            {
+                                intersectsNode.IntersectsMode = true;
+                            }
                         }
                         e.Handled = true;
                         break;
@@ -88,34 +99,44 @@ namespace Troubleshooting.Views
                         ConnectionRoute.EndPoint = curContentPoint;
                         
                         break;
+                    case MouseHandlingMode.SelectRect:
+                        curContentPoint = e.GetPosition(DiagramCanvas);
+                        Vector sizeVector = curContentPoint - origContentMouseDownPoint;
+                        ViewModel.SelectRectangle.Point2 = new Point(sizeVector.X, sizeVector.Y);
+                        break;
                 }
             };
 
             MouseUp += (o, e) =>
             {
-                if (mouseHandlingMode == MouseHandlingMode.DraggingNode)
+                switch (mouseHandlingMode)
                 {
-                    mouseHandlingMode = MouseHandlingMode.None;
-                    if (intersectsNode != null) intersectsNode.IntersectsMode = false;
-                    DraggedNodeView.ReleaseMouseCapture();
-                    e.Handled = true;
-                }
-                else if (mouseHandlingMode == MouseHandlingMode.ResizeNode)
-                {
-                    mouseHandlingMode = MouseHandlingMode.None;
-                    if (intersectsNode != null) intersectsNode.IntersectsMode = false;
-                    ResizeNodeView.ReleaseMouseCapture();
-                    e.Handled = true;
-                }else if (mouseHandlingMode == MouseHandlingMode.ConnectionRoute)
-                {
-                    mouseHandlingMode = MouseHandlingMode.None;
-                    ViewModel.Connections.Remove(ConnectionRoute);
-                    
+                    case MouseHandlingMode.DraggingNode:
+                        mouseHandlingMode = MouseHandlingMode.None;
+                        foreach (var n in ViewModel.Nodes) n.IntersectsMode = false;
+                        DraggedNodeView.ReleaseMouseCapture();
+                        e.Handled = true;
+                        break;
+                    case MouseHandlingMode.ResizeNode:
+                        mouseHandlingMode = MouseHandlingMode.None;
+                        if (intersectsNode != null) intersectsNode.IntersectsMode = false;
+                        ResizeNodeView.ReleaseMouseCapture();
+                        e.Handled = true;
+                        break;
+                    case MouseHandlingMode.ConnectionRoute:
+                        mouseHandlingMode = MouseHandlingMode.None;
+                        ViewModel.Connections.Remove(ConnectionRoute);
+                        break;
+                    case MouseHandlingMode.SelectRect:
+                        mouseHandlingMode = MouseHandlingMode.None;
+                        ViewModel.SelectRectangle.Visible = false;
+                        break;
                 }
             };
         }
 
-        private NodeView DraggedNodeView;
+        private NodeView DraggedNodeView; 
+        private IEnumerable<NodeViewModel> DraggedNodeViewModels;
         private NodeView ResizeNodeView;
         private ConnectionViewModel ConnectionRoute;
         private MouseHandlingMode mouseHandlingMode = MouseHandlingMode.None;
@@ -136,9 +157,12 @@ namespace Troubleshooting.Views
             if (sender is NodeView node)
             {
                 node.CaptureMouse();
-                node.ViewModel.OldPosition = node.ViewModel.Position;
-                mouseHandlingMode = MouseHandlingMode.DraggingNode;
                 DraggedNodeView = node;
+                DraggedNodeViewModels = ViewModel.Nodes.TakeWhile(n => n.SelectMode);
+                foreach (var n in DraggedNodeViewModels)
+                    n.OldPosition = n.Position;
+                
+                mouseHandlingMode = MouseHandlingMode.DraggingNode;
                 e.Handled = true;
             }
         }
@@ -177,7 +201,7 @@ namespace Troubleshooting.Views
                 ViewModel.Connections.Add(connectionViewModel);
                 mouseHandlingMode = MouseHandlingMode.ConnectionRoute;
                 ConnectionRoute = connectionViewModel;
-                
+                e.Handled = true;
             }
         }
         private void NodeView_OnConnectorInMouseUp(object sender, MouseButtonEventArgs e)
@@ -209,8 +233,10 @@ namespace Troubleshooting.Views
         {
             if (sender is NodeView node)
             {
-                
-                node.ViewModel.EditMode = true;
+                if (node.ViewModel.SelectMode)
+                    node.ViewModel.EditMode = true;
+                else
+                    node.ViewModel.PreSelectMode = true;
                 e.Handled = true;
             }
         }
@@ -219,20 +245,74 @@ namespace Troubleshooting.Views
         {
             if (sender is NodeView node)
             {
-                node.ReleaseMouseCapture();
-                node.ViewModel.EditMode = false;
+                if (node.ViewModel.SelectMode)
+                    node.ViewModel.EditMode = false;
+                else
+                    node.ViewModel.PreSelectMode = false;
                 e.Handled = true;
             }
         }
 
-        private void NodeView_OnMouseUp(object sender, MouseButtonEventArgs e)
+        private void MenuItemEnd_OnClick(object sender, RoutedEventArgs e)
         {
-            var r = e.Handled;
+            DialogResult = true;
+            Close();
         }
 
-        private void NoseView_OnMouseMove(object sender, MouseEventArgs e)
+        private NodeView _nodeViewMouseDown; 
+        private void NodeView_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            var r = e.Handled;
+            
+        }
+
+
+        private void NodeView_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+           
+        }
+
+        private void NodeView_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is NodeView node && !node.ViewModel.SelectMode)
+            {
+                _nodeViewMouseDown = node;
+                e.Handled = true;
+            }
+        }
+
+        private void NodeView_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is NodeView node && !node.ViewModel.SelectMode)
+            {
+                if (Equals(_nodeViewMouseDown, node))
+                {
+                    node.ViewModel.SelectMode = true;
+                    _nodeViewMouseDown = null;
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void NodeView_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is NodeView node && node.ViewModel.SelectMode)
+            {
+                _nodeViewMouseDown = node;
+                e.Handled = true;
+            }
+        }
+
+        private void NodeView_OnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is NodeView node && node.ViewModel.SelectMode)
+            {
+                if (Equals(_nodeViewMouseDown, node))
+                {
+                    node.ViewModel.SelectMode = false;
+                    _nodeViewMouseDown = null;
+                    e.Handled = true;
+                }
+            }
         }
     }
 }

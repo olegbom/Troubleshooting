@@ -1,78 +1,51 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using PropertyChanged;
 using Troubleshooting.Annotations;
 
+
 namespace Troubleshooting.ViewModels
 {
+
+
+
+    [ImplementPropertyChanged]
     public class NodeViewModel:INotifyPropertyChanged
     {
 
-        private ConnectionViewModel _connectionOut;
+      
 
-        public ConnectionViewModel ConnectionOut
+        public ConnectionViewModel ConnectionOut { get; set; }
+      
+        //[DependsOn(nameof(X), nameof(Width), nameof(Y), nameof(Height))]
+        public Point ConnectorOutPos => new Point(X + Width, Y + Height / 2);
+
+        //[DependsOn(nameof(X), nameof(Y), nameof(Height))]
+        public Point ConnectorInPos => new Point(X, Y + Height / 2);
+        
+        public string Text { get; set; }
+        public bool EditMode { get; set; }
+        public bool PreSelectMode { get; set; }
+        public bool SelectMode { get; set; }
+        public bool InvSelectMode => !SelectMode;
+        public bool IntersectsMode { get; set; }
+
+        //[DependsOn(nameof(PreSelectMode), nameof(SelectMode))]
+        public Brush BackgroundFillBrush
         {
             get
             {
-                return _connectionOut;
-            }
-            set
-            {
-                if (value == _connectionOut) return;
-                _connectionOut = value;
-                OnPropertyChanged();
+                if (SelectMode) return Brushes.DodgerBlue;
+                if (PreSelectMode) return Brushes.LightSkyBlue;
+                return Brushes.White;
             }
         }
 
-        [DependsOn(nameof(X), nameof(Width), nameof(Y), nameof(Height))]
-        public Point ConnectorOutPos => new Point(X + Width, Y + Height / 2);
+        
 
-        [DependsOn(nameof(X), nameof(Y), nameof(Height))]
-        public Point ConnectorInPos => new Point(X, Y + Height / 2);
-
-
-        private string _text;
-
-        public string Text
-        {
-            get { return _text; }
-            set
-            {
-                if (_text == value) return;
-                _text = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _editMode;
-        public bool EditMode
-        {
-            get { return _editMode; }
-            set
-            {
-                if (_editMode == value) return;
-                _editMode = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _itersectsMode;
-        public bool IntersectsMode
-        {
-            get { return _itersectsMode; }
-            set
-            {
-                if (_itersectsMode == value) return;
-                _itersectsMode = value;
-                OnPropertyChanged();
-            }
-        }
 
         public Point OldPosition { get; set; }
 
@@ -125,16 +98,16 @@ namespace Troubleshooting.ViewModels
             }
         }
 
-        private double _minWigth;
-        public double MinWigth
+        private double _minWidth;
+        public double MinWidth
         {
-            get { return _minWigth; }
+            get { return _minWidth; }
             set
             {
                 value = Math.Round(value / 10) * 10;
-                if (_minWigth == value) return;
-                _minWigth = value;
-                if (Width < _minWigth) Width = _minWigth;
+                if (_minWidth == value) return;
+                _minWidth = value;
+                if (Width < _minWidth) Width = _minWidth;
                 OnPropertyChanged();
             }
         }
@@ -161,7 +134,7 @@ namespace Troubleshooting.ViewModels
             set
             {
                 value = Math.Round(value / 10) * 10;
-                if (value < MinWigth) value = MinWigth;
+                if (value < MinWidth) value = MinWidth;
                 if(_width == value) return;
                 _width = value;
                 OnPropertyChanged();
@@ -198,7 +171,7 @@ namespace Troubleshooting.ViewModels
         {
             Width = 40;
             Height = 50;
-            MinWigth = 40;
+            MinWidth = 40;
             MinHeight = 40;
         }
 

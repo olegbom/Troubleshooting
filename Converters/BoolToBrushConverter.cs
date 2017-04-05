@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -11,8 +7,8 @@ namespace Troubleshooting.Converters
 {
     class BoolToBrushConverter:IValueConverter
     {
-        public Brush TrueBrush = Brushes.Red;
-        public Brush FalseBrush = Brushes.Black;
+        public Brush TrueBrush { get; set; }= Brushes.Red;
+        public Brush FalseBrush { get; set; }= Brushes.Black;
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

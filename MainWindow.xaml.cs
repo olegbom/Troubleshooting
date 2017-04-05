@@ -2,12 +2,10 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using Troubleshooting.Annotations;
 using Troubleshooting.Views;
 
@@ -77,10 +75,16 @@ namespace Troubleshooting
         {
             InitializeComponent();
             
-            FunctionalDiagram diagram = new FunctionalDiagram(26);
+            //FunctionalDiagram diagram = new FunctionalDiagram(26);
             DiagramEditorView diagramEditor = new DiagramEditorView();
-            diagramEditor.ShowDialog();
-            diagram.Connect(1,2,3);
+            if (diagramEditor.ShowDialog() ?? false)
+            {
+                FunctionalDiagram diagram = diagramEditor.ViewModel.GenerateFuctionalDiagram();
+                var result = diagram.GetMyTable();
+                Console.WriteLine(result.ToString());
+                AddMyTableToCanvas(result);
+            }
+           /* diagram.Connect(1,2,3);
             diagram.Connect(2,4);
             diagram.Connect(3,5);
             diagram.Connect(4,6,7);
@@ -104,12 +108,9 @@ namespace Troubleshooting
             diagram.Connect(22,23);
             diagram.Connect(23,24);
             diagram.Connect(24,25);
-            diagram.Connect(25,26);
+            diagram.Connect(25,26);*/
+         
 
-            
-            var result = diagram.GetMyTable();
-            Console.WriteLine(result.ToString());
-            AddMyTableToCanvas(result);
 
 
         }
