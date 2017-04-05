@@ -6,6 +6,7 @@ using Troubleshooting.Annotations;
 
 namespace Troubleshooting.ViewModels
 {
+    [ImplementPropertyChanged]
     public class ConnectionViewModel: INotifyPropertyChanged
     {
 
@@ -15,7 +16,7 @@ namespace Troubleshooting.ViewModels
 
         public NodeViewModel SinkNode
         {
-            get { return _sinkNode; }
+            get => _sinkNode;
             set
             {
                 if (_sinkNode == value) return;
@@ -37,41 +38,13 @@ namespace Troubleshooting.ViewModels
             }
         }
 
-        private Point _endPoint;
-        public Point EndPoint
-        {
-            get { return _endPoint; }
-            set
-            {
-                if (_endPoint == value) return;
-                _endPoint = value;
-                OnPropertyChanged();
-            }
-        }
 
-        private Point _startPoint;
-        public Point StartPoint 
-        {
-            get { return _startPoint; }
-            set
-            {
-                if (_startPoint == value) return;
-                _startPoint = value;
-                OnPropertyChanged();
-            }
-        }
-
-        [DependsOn(nameof(StartPoint))]
+        public Point EndPoint { get; set; }
+        public Point StartPoint { get; set; }
+      
         public double X => StartPoint.X;
-
-        [DependsOn(nameof(StartPoint))]
         public double Y => StartPoint.Y;
-        
-        
-        [DependsOn(nameof(StartPoint), nameof(EndPoint))]
         public double X2 => EndPoint.X - StartPoint.X;
-
-        [DependsOn(nameof(StartPoint), nameof(EndPoint))]
         public double Y2 => EndPoint.Y - StartPoint.Y;
        
 

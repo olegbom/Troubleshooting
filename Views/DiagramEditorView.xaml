@@ -21,57 +21,53 @@
         </Grid.RowDefinitions>
 
 
-        <ItemsControl ItemsSource="{Binding DiagramItems}" x:Name="DiagramCanvas" Grid.Row="1">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Canvas/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemContainerStyle>
-                <Style TargetType="ContentPresenter">
-                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
-                </Style>
-            </ItemsControl.ItemContainerStyle>
-            <ItemsControl.Resources>
-                <DataTemplate DataType="{x:Type vm:NodeViewModel}">
-                    <local:NodeView DataContext="{Binding}" 
-                                    BorderMoveMouseDown="Node_OnBorderMoveMouseDown"
-                                    RectSizeMouseDown="NodeView_OnRectSizeMouseDown"
-                                    ConnectorOutMouseDown="NodeView_OnConnectorOutMouseDown"
-                                    ConnectorInMouseUp="NodeView_OnConnectorInMouseUp"
-                                    MouseEnter="NodeView_OnMouseEnter"
-                                    MouseLeave="NodeView_OnMouseLeave"
-                                    MouseLeftButtonDown="NodeView_OnMouseLeftButtonDown"
-                                    MouseLeftButtonUp="NodeView_OnMouseLeftButtonUp"
-                                    MouseRightButtonDown="NodeView_OnMouseRightButtonDown"
-                                    MouseRightButtonUp="NodeView_OnMouseRightButtonUp"/>
-                </DataTemplate>
-                <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
-                    <local:ConnectionView DataContext="{Binding}"/>
-                </DataTemplate>
-                <DataTemplate DataType="{x:Type vm:SelectRectangleViewModel}">
-                    <Path Visibility="{Binding Visible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                          Stroke="DodgerBlue" 
-                          StrokeThickness="1" SnapsToDevicePixels="True">
-                        <Path.Data>
-                            <PathGeometry>
-                                <PathFigure IsClosed="True" IsFilled="False" StartPoint="0,0">
-                                    <LineSegment Point="{Binding Point1}"/>
-                                    <LineSegment Point="{Binding Point2}"/>
-                                    <LineSegment Point="{Binding Point3}"/>
-                                </PathFigure>
-                            </PathGeometry>
-                        </Path.Data>
-                    </Path>
+        <Grid x:Name="DiagramGrid" Background="White" Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding DiagramItems}"  >
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding X}" />
+                        <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:NodeViewModel}">
+                        <local:NodeView DataContext="{Binding}"
+                                        BorderMoveMouseDown="Node_OnBorderMoveMouseDown"
+                                        RectSizeMouseDown="NodeView_OnRectSizeMouseDown"
+                                        ConnectorOutMouseDown="NodeView_OnConnectorOutMouseDown"
+                                        ConnectorInMouseUp="NodeView_OnConnectorInMouseUp"
+                                        MouseEnter="NodeView_OnMouseEnter"
+                                        MouseLeave="NodeView_OnMouseLeave" />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
+                        <local:ConnectionView DataContext="{Binding}" />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:SelectRectangleViewModel}">
+                        <Path Visibility="{Binding Visible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                              Stroke="DodgerBlue"
+                              StrokeThickness="1" SnapsToDevicePixels="True">
+                            <Path.Data>
+                                <PathGeometry>
+                                    <PathFigure IsClosed="True" IsFilled="False" StartPoint="0,0">
+                                        <LineSegment Point="{Binding Point1}" />
+                                        <LineSegment Point="{Binding Point2}" />
+                                        <LineSegment Point="{Binding Point3}" />
+                                    </PathFigure>
+                                </PathGeometry>
+                            </Path.Data>
+                        </Path>
 
-                </DataTemplate>
-            </ItemsControl.Resources>
-            
-        </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.Resources>
 
-        
-        
+            </ItemsControl></Grid >
+
+
         <Menu Grid.Row="0" >
             <MenuItem Header="Добавить новый блок" Click="MenuItemNewBlock_OnClick" ></MenuItem>
             <MenuItem Header="Завершить" Click="MenuItemEnd_OnClick"></MenuItem>

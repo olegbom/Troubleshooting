@@ -4,12 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Troubleshooting.Views"
+             xmlns:vm="clr-namespace:Troubleshooting.ViewModels"
              xmlns:conv="clr-namespace:Troubleshooting.Converters"
              xmlns:troubleshooting="clr-namespace:Troubleshooting"
              mc:Ignorable="d" 
              x:Name="MyNode"
-             MinHeight="{Binding MinHeight}" 
-             MinWidth="{Binding MinWidth}" 
+             MinHeight="{Binding MinHeight}" d:DesignHeight="50" 
+             MinWidth="{Binding MinWidth}" d:DesignWidth="40" 
              Width="{Binding Width}" 
              Height="{Binding Height}">
     
@@ -22,21 +23,19 @@
             <Setter Property="StrokeThickness" Value="1"/>
             <Setter Property="Fill" Value="SkyBlue"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Width" Value="8"/>
-            <Setter Property="Height" Value="8"/>
-            <Setter Property="Margin" Value="-4"/>
+            <Setter Property="Width" Value="7"/>
+            <Setter Property="Height" Value="7"/>
+            <Setter Property="Margin" Value="-5"/>
         </Style>
     </UserControl.Resources>
     <Grid>
-        <Rectangle IsHitTestVisible="{Binding InvSelectMode, Mode=OneWay}" Fill="White"/>
         <Border x:Name="BorderMove"
                 BorderThickness="1"
                 BorderBrush="{Binding Path = IntersectsMode, Mode=OneWay, Converter={StaticResource IntersectsConverter}}"
                 Background="{Binding BackgroundFillBrush, Mode=OneWay}"
-                IsHitTestVisible="{Binding SelectMode, Mode=OneWay}"
                 Margin="3"
                 Cursor="SizeAll"
-                MouseLeftButtonDown="BorderMove_OnMouseDown">
+                MouseDown="BorderMove_OnMouseDown">
             <Grid>
                 <troubleshooting:EditableTextBlock x:Name="Label"
                                                    Text="{Binding Text}" Margin="10"
@@ -46,17 +45,32 @@
                                                    HorizontalAlignment="Center"
                                                    SnapsToDevicePixels="True" Cursor="IBeam" />
                 <Grid Visibility="{Binding Path = EditMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
-                    <Rectangle StrokeThickness="3" Stroke="Green" SnapsToDevicePixels="True" Margin="-3"
-                               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" StrokeDashArray="3 2" />
+                    <Rectangle StrokeThickness="2" Stroke="Green" SnapsToDevicePixels="True" Margin="-3"
+                               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" StrokeDashArray="1 1" />
                     <Rectangle x:Name="RectSizeBR" Style="{StaticResource EditRectangle}" Stroke="CadetBlue"
                                Fill="SkyBlue" VerticalAlignment="Bottom" HorizontalAlignment="Right" Cursor="SizeNWSE"
                                MouseDown="RectSizeBR_OnMouseDown" />
+                    
+                    
                     <Rectangle x:Name="ConnectorOut" Style="{StaticResource EditRectangle}" Stroke="DarkOrange"
                                Fill="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Right" Cursor="Cross"
                                MouseDown="ConnectorOut_OnMouseDown" />
-                    <Rectangle x:Name="ConnectorIn" Style="{StaticResource EditRectangle}" Stroke="DarkOrange"
-                               Fill="GreenYellow" VerticalAlignment="Center" HorizontalAlignment="Left"
-                               MouseUp="ConnectorIn_OnMouseUp" />
+                    <ItemsControl ItemsSource="{Binding InputConnectors}" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.Resources>
+                            <DataTemplate DataType="{x:Type vm:ConnectorViewModel}">
+                                <Rectangle DataContext="{Binding}" Style="{StaticResource EditRectangle}" 
+                                           Stroke="DarkOrange"
+                                           Margin="-3 1.5 -3 1.5"
+                                           Fill="GreenYellow" MouseUp="ConnectorIn_OnMouseUp" />
+                            </DataTemplate>
+                        </ItemsControl.Resources>
+                    </ItemsControl>
+                   
 
                 </Grid>
 
@@ -65,4 +79,6 @@
         </Border>
     </Grid>
 </UserControl>
+
+
 

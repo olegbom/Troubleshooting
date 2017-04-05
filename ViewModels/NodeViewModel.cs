@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -6,52 +7,38 @@ using System.Windows.Media;
 using PropertyChanged;
 using Troubleshooting.Annotations;
 
-
 namespace Troubleshooting.ViewModels
 {
-
-
-
     [ImplementPropertyChanged]
     public class NodeViewModel:INotifyPropertyChanged
     {
-
-      
+        public ObservableCollection<ConnectorViewModel> InputConnectors { get; } = new ObservableCollection<ConnectorViewModel>{new ConnectorViewModel()}; 
 
         public ConnectionViewModel ConnectionOut { get; set; }
-      
-        //[DependsOn(nameof(X), nameof(Width), nameof(Y), nameof(Height))]
-        public Point ConnectorOutPos => new Point(X + Width, Y + Height / 2);
 
-        //[DependsOn(nameof(X), nameof(Y), nameof(Height))]
+        public Point ConnectorOutPos => new Point(X + Width, Y + Height / 2);
         public Point ConnectorInPos => new Point(X, Y + Height / 2);
         
         public string Text { get; set; }
         public bool EditMode { get; set; }
-        public bool PreSelectMode { get; set; }
         public bool SelectMode { get; set; }
         public bool InvSelectMode => !SelectMode;
         public bool IntersectsMode { get; set; }
 
-        //[DependsOn(nameof(PreSelectMode), nameof(SelectMode))]
         public Brush BackgroundFillBrush
         {
             get
             {
                 if (SelectMode) return Brushes.DodgerBlue;
-                if (PreSelectMode) return Brushes.LightSkyBlue;
                 return Brushes.White;
             }
         }
-
         
-
-
         public Point OldPosition { get; set; }
 
         public Point Position
         {
-            get { return new Point(X, Y); }
+            get => new Point(X, Y);
             set
             {
                 X = value.X;
@@ -64,7 +51,7 @@ namespace Troubleshooting.ViewModels
         private double _x;
         public double X
         {
-            get { return _x; }
+            get => _x;
             set
             {
                 value = Math.Round(value / 10) * 10;
@@ -154,9 +141,7 @@ namespace Troubleshooting.ViewModels
                 OnPropertyChanged();
             }
         }
-
         
-
         public Rect Rect() => new Rect(Position, new Size(Width, Height));
         public Rect Rect(Point newPos) => new Rect(newPos, new Size(Width, Height));
         public Rect Rect(Vector newSize) => new Rect(Position, new Size(newSize.X, newSize.Y));
@@ -164,9 +149,7 @@ namespace Troubleshooting.ViewModels
         public bool IntersectsWith(NodeViewModel node) => Rect().IntersectsWith(node.Rect());
         public bool IntersectsWith(NodeViewModel node, Point newPos) => Rect(newPos).IntersectsWith(node.Rect());
         public bool IntersectsWith(NodeViewModel node, Vector newSize) => Rect(newSize).IntersectsWith(node.Rect());
-
-
-
+        
         public NodeViewModel()
         {
             Width = 40;
