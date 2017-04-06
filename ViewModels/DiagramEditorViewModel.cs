@@ -29,7 +29,26 @@ namespace Troubleshooting.ViewModels
             DiagramItems.Add(new CollectionContainer() {Collection = Nodes});
             DiagramItems.Add(new CollectionContainer() {Collection = Connections});
             DiagramItems.Add(SelectRectangle);
-           
+
+            Nodes.CollectionChanged += (o, e) =>
+            {
+                if(e.OldItems !=null)
+                    foreach (NodeViewModel node in e.OldItems)
+                    {
+                        foreach (var connection in node.InputConnections)
+                        {
+                            Connections.Remove(connection);
+                            connection.SourceNode.OutputConnectios.Remove(connection);
+                        }
+                        node.InputConnections.Clear();
+                        foreach (var connection in node.OutputConnectios)
+                        {
+                            Connections.Remove(connection);
+                            connection.SinkNode.InputConnections.Remove(connection);
+                        }
+                        node.OutputConnectios.Clear();
+                    }
+            };
 
             Nodes.Add(new NodeViewModel() { Text = "1", X = 10, Y = 10 });
             Nodes.Add(new NodeViewModel() { Text = "2", X = 20, Y = 60 });

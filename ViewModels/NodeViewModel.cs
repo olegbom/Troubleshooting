@@ -33,7 +33,7 @@ namespace Troubleshooting.ViewModels
         public Point[] InputConnectionsPositions => InputConnections.Select(
                 (c, i) => new {
                     SourceY = c.SourceNode.Y,
-                    P =  new Point(X, this.Y + Height * (i + 1) / (InputConnections.Count + 1))
+                    P =  new Point(X, Y + Height * (i + 1) / (InputConnections.Count + 1))
                 }).OrderBy(anon => anon.SourceY).Select(anon => anon.P).ToArray();
             
 

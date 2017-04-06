@@ -153,7 +153,7 @@ namespace Troubleshooting
         private Point _coordMouseDown;
         private double _oldX, _oldY;
  
-        private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if(e.LeftButton == MouseButtonState.Pressed)
             {
@@ -163,7 +163,7 @@ namespace Troubleshooting
             }
         }
 
-        private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             if(e.LeftButton == MouseButtonState.Pressed)
             {
@@ -173,12 +173,12 @@ namespace Troubleshooting
             }
         }
 
-        private void Window_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
             
         }
 
-        private void Window_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             
             double mpl = 1 + 0.1 * e.Delta / 120;

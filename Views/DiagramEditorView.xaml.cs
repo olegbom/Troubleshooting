@@ -41,6 +41,17 @@ namespace Troubleshooting.Views
                 e.Handled = true;
             };
 
+            KeyDown += (o, e) =>
+            {
+                if (e.Key == Key.Delete)
+                {
+                    for (var i = 0; i < ViewModel.Nodes.Count; i++)
+                    {
+                        if (ViewModel.Nodes[i].SelectMode) ViewModel.Nodes.RemoveAt(i--);
+                    }
+                }
+            };
+
             NodeViewModel intersectsNode = null;
             bool mouseMoveBetweenDownAndUp = false;
             DiagramGrid.MouseMove += (o, e) =>
