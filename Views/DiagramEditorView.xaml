@@ -72,6 +72,7 @@
         <Menu Grid.Row="0" >
             <MenuItem Header="Добавить новый блок" Click="MenuItemNewBlock_OnClick" ></MenuItem>
             <MenuItem Header="Завершить" Click="MenuItemEnd_OnClick"></MenuItem>
+            <MenuItem Header="Печать" Click="MenuPrint_OnClick"></MenuItem>
         </Menu>
 
 

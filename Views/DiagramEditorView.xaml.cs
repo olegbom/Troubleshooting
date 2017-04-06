@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using Troubleshooting.Annotations;
@@ -276,6 +277,15 @@ namespace Troubleshooting.Views
                 node.ViewModel.InputConnections.Add(ConnectionRoute);
                 mouseHandlingMode = MouseHandlingMode.None;
                 ConnectionRoute.SinkNode = node.ViewModel;
+            }
+        }
+
+        private void MenuPrint_OnClick(object sender, RoutedEventArgs e)
+        {
+            PrintDialog printDialog = new PrintDialog();
+            if (printDialog.ShowDialog() == true)
+            {
+                printDialog.PrintVisual(DiagramGrid, "Печать схемы");
             }
         }
     }
