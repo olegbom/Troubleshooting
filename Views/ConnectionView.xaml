@@ -4,11 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Troubleshooting.Views"
+             xmlns:conv="clr-namespace:Troubleshooting.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300" IsHitTestVisible="False">
+             d:DesignHeight="300" d:DesignWidth="300" IsHitTestVisible="{Binding IsHitTestVisible}">
     
-    
-    <Path StrokeThickness="2" Stroke="Black"  SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <conv:BoolToBrushConverter FalseBrush="Black" TrueBrush="DodgerBlue" x:Key="BoolToBrushConverter"></conv:BoolToBrushConverter>
+    </UserControl.Resources>
+    <Path StrokeThickness="2" Stroke="{Binding SelectMode, Converter={StaticResource BoolToBrushConverter}}"  SnapsToDevicePixels="True">
         <Path.Data>
             <PathGeometry>
                 <PathGeometry.Figures>

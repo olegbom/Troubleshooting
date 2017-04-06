@@ -12,36 +12,47 @@ using Troubleshooting.Annotations;
 namespace Troubleshooting.ViewModels
 {
     [ImplementPropertyChanged]
-    public class NodeViewModel:INotifyPropertyChanged
+    public class NodeViewModel : INotifyPropertyChanged
     {
 
-        public ObservableCollection<ConnectionViewModel> OutputConnectios { get; } = new ObservableCollection<ConnectionViewModel>();
+        public ObservableCollection<ConnectionViewModel> OutputConnections { get; } =
+            new ObservableCollection<ConnectionViewModel>();
 
-        public ObservableCollection<ConnectionViewModel> InputConnections { get; } = new ObservableCollection<ConnectionViewModel>();
+        public ObservableCollection<ConnectionViewModel> InputConnections { get; } =
+            new ObservableCollection<ConnectionViewModel>();
 
         public Point OutputConnectionPosition => new Point(X + Width, Y + Height / 2);
 
-        
+
         public void OnOutputConnectionPositionChanged()
         {
             var connectionPosition = OutputConnectionPosition;
-            foreach (var c in OutputConnectios)
+            foreach (var c in OutputConnections)
                 c.StartPoint = connectionPosition;
         }
 
 
-        public Point[] InputConnectionsPositions => InputConnections.Select(
-                (c, i) => new {
-                    SourceY = c.SourceNode.Y,
-                    P =  new Point(X, Y + Height * (i + 1) / (InputConnections.Count + 1))
-                }).OrderBy(anon => anon.SourceY).Select(anon => anon.P).ToArray();
-            
+        public Point[] InputConnectionsPositions
+        {
+            get
+            {
+                var result = new Point[InputConnections.Count];
+                for (int i = 0; i < result.Length; i++)
+                {
+                    result[i] = new Point(X, Y + Height * (i+1)/ (result.Length+1));
+                }
+                return result;
+            }
+        }
+
 
         public void OnInputConnectionsPositionsChanged()
         {
             var connectionsPositions = InputConnectionsPositions;
-            for (var i = 0; i < InputConnections.Count; i++)
-                InputConnections[i].EndPoint = connectionsPositions[i];
+
+            var sortConnection = InputConnections.OrderBy(c => c.Y).ToArray();
+            for (var i = 0; i < sortConnection.Length; i++)
+                sortConnection[i].EndPoint = connectionsPositions[i];
         }
 
 
@@ -98,7 +109,7 @@ namespace Troubleshooting.ViewModels
                 value = Math.Round(value / 10) * 10;
                 if (_y == value) return;
                 _y = value;
-                foreach (var c in OutputConnectios) c.SinkNode.OnInputConnectionsPositionsChanged();
+                foreach (var c in OutputConnections) c.SinkNode.OnInputConnectionsPositionsChanged();
                 OnInputConnectionsPositionsChanged();
                 OnPropertyChanged();
             }
@@ -188,7 +199,7 @@ namespace Troubleshooting.ViewModels
             MinHeight = 40;
             InputConnections.CollectionChanged += (o, e) => OnInputConnectionsPositionsChanged();
             ;
-            OutputConnectios.CollectionChanged += (o, e) => OnOutputConnectionPositionChanged();
+            OutputConnections.CollectionChanged += (o, e) => OnOutputConnectionPositionChanged();
         }
 
         #region OnPropertyChanged

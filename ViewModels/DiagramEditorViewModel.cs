@@ -35,19 +35,31 @@ namespace Troubleshooting.ViewModels
                 if(e.OldItems !=null)
                     foreach (NodeViewModel node in e.OldItems)
                     {
-                        foreach (var connection in node.InputConnections)
+                        for (var i = node.InputConnections.Count - 1; i >= 0; i--)
                         {
+                            var connection = node.InputConnections[i];
                             Connections.Remove(connection);
-                            connection.SourceNode.OutputConnectios.Remove(connection);
                         }
+
                         node.InputConnections.Clear();
-                        foreach (var connection in node.OutputConnectios)
+                        for (var i = node.OutputConnections.Count - 1; i >= 0; i--)
                         {
+                            var connection = node.OutputConnections[i];
                             Connections.Remove(connection);
-                            connection.SinkNode.InputConnections.Remove(connection);
                         }
-                        node.OutputConnectios.Clear();
+
+                        node.OutputConnections.Clear();
                     }
+            };
+
+            Connections.CollectionChanged += (o, e) =>
+            {
+                if(e.OldItems !=null)
+                    foreach (ConnectionViewModel connection in e.OldItems)
+                    {
+                        connection.SourceNode.OutputConnections.Remove(connection);
+                        connection.SinkNode.InputConnections.Remove(connection);
+                    }    
             };
 
             Nodes.Add(new NodeViewModel() { Text = "1", X = 10, Y = 10 });

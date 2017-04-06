@@ -115,6 +115,11 @@ namespace Troubleshooting.Views
                         Vector sizeVector = curContentPoint - origContentMouseDownPoint;
                         ViewModel.SelectRectangle.Point2 = new Point(sizeVector.X, sizeVector.Y);
                         break;
+
+                    case MouseHandlingMode.None:
+                        mouseMoveConnectionBetweenDownAndUp = true;
+                        break;
+                    
                 }
             };
 
@@ -228,6 +233,7 @@ namespace Troubleshooting.Views
             if (sender is NodeView node)
             {
                 ConnectionViewModel connectionViewModel = new ConnectionViewModel(node.ViewModel);
+                connectionViewModel.IsHitTestVisible = false;
                 ViewModel.Connections.Add(connectionViewModel);
                 mouseHandlingMode = MouseHandlingMode.ConnectionRoute;
                 ConnectionRoute = connectionViewModel;
@@ -274,6 +280,7 @@ namespace Troubleshooting.Views
 
             if (sender is NodeView node)
             {
+                ConnectionRoute.IsHitTestVisible = true;
                 node.ViewModel.InputConnections.Add(ConnectionRoute);
                 mouseHandlingMode = MouseHandlingMode.None;
                 ConnectionRoute.SinkNode = node.ViewModel;
@@ -286,6 +293,33 @@ namespace Troubleshooting.Views
             if (printDialog.ShowDialog() == true)
             {
                 printDialog.PrintVisual(DiagramGrid, "Печать схемы");
+            }
+        }
+
+        private bool mouseMoveConnectionBetweenDownAndUp;
+        private ConnectionView clickedConnectionView;
+
+        private void Connection_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (mouseHandlingMode != MouseHandlingMode.None)
+                return;
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
+                return;
+            mouseMoveConnectionBetweenDownAndUp = false;
+            clickedConnectionView = (ConnectionView) sender;
+        }
+
+        private void Connection_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (mouseHandlingMode != MouseHandlingMode.None)
+                return;
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
+                return;
+
+            if (Equals((ConnectionView) sender, clickedConnectionView) && !mouseMoveConnectionBetweenDownAndUp)
+            {
+                clickedConnectionView.ViewModel.SelectMode = !clickedConnectionView.ViewModel.SelectMode;
+                mouseMoveConnectionBetweenDownAndUp = false;
             }
         }
     }

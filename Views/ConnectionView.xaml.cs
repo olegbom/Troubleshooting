@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using Troubleshooting.ViewModels;
 
 namespace Troubleshooting.Views
 {
@@ -7,6 +8,8 @@ namespace Troubleshooting.Views
     /// </summary>
     public partial class ConnectionView : UserControl
     {
+        public ConnectionViewModel ViewModel => (ConnectionViewModel) DataContext;
+
         public ConnectionView()
         {
             InitializeComponent();

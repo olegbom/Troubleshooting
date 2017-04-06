@@ -47,7 +47,7 @@
                         
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
-                        <local:ConnectionView DataContext="{Binding}" />
+                        <local:ConnectionView DataContext="{Binding}" MouseDown="Connection_OnMouseDown" MouseUp="Connection_OnMouseUp"/>
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:SelectRectangleViewModel}">
                         <Path Visibility="{Binding Visible, Converter={StaticResource BooleanToVisibilityConverter}}"

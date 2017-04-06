@@ -42,15 +42,15 @@ namespace Troubleshooting.ViewModels
         public double X => StartPoint.X;
         public double Y => StartPoint.Y;
         public double X2 => EndPoint.X - StartPoint.X;
-
         public double Y2 => EndPoint.Y - StartPoint.Y;
        
-
+        public bool SelectMode { get; set; }
+        public bool IsHitTestVisible { get; set; }
 
         public ConnectionViewModel(NodeViewModel source)
         {
             SourceNode = source;
-            source.OutputConnectios.Add(this);
+            source.OutputConnections.Add(this);
             EndPoint = StartPoint;
         }
 
