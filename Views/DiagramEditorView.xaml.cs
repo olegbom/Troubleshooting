@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Shapes;
 using Troubleshooting.Annotations;
 using Troubleshooting.ViewModels;
-using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+
 
 namespace Troubleshooting.Views
 {
-
     public enum MouseHandlingMode
     {
         None,
@@ -223,23 +222,7 @@ namespace Troubleshooting.Views
                 e.Handled = true;
             }
         }
-        private void NodeView_OnConnectorInMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
-                return;
-
-            if (mouseHandlingMode != MouseHandlingMode.ConnectionRoute)
-                return;
-
-            if (sender is NodeView node)
-            {
-                node.ViewModel.InputConnectors.Add(new ConnectorViewModel());
-                mouseHandlingMode = MouseHandlingMode.None;
-                ConnectionRoute.SinkNode = node.ViewModel;
-            }
-            
-
-        }
+   
 
         private void MenuItemNewBlock_OnClick(object sender, RoutedEventArgs e)
         {
@@ -272,7 +255,17 @@ namespace Troubleshooting.Views
             Close();
         }
 
+        private void NodeView_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (mouseHandlingMode != MouseHandlingMode.ConnectionRoute)
+                return;
 
-       
+            if (sender is NodeView node)
+            {
+                node.ViewModel.InputConnections.Add(ConnectionRoute);
+                mouseHandlingMode = MouseHandlingMode.None;
+                ConnectionRoute.SinkNode = node.ViewModel;
+            }
+        }
     }
 }

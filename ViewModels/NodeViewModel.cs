@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
@@ -12,18 +14,44 @@ namespace Troubleshooting.ViewModels
     [ImplementPropertyChanged]
     public class NodeViewModel:INotifyPropertyChanged
     {
-        public ObservableCollection<ConnectorViewModel> InputConnectors { get; } = new ObservableCollection<ConnectorViewModel>{new ConnectorViewModel()}; 
 
-        public ConnectionViewModel ConnectionOut { get; set; }
+        public ObservableCollection<ConnectionViewModel> OutputConnectios { get; } = new ObservableCollection<ConnectionViewModel>();
 
-        public Point ConnectorOutPos => new Point(X + Width, Y + Height / 2);
-        public Point ConnectorInPos => new Point(X, Y + Height / 2);
+        public ObservableCollection<ConnectionViewModel> InputConnections { get; } = new ObservableCollection<ConnectionViewModel>();
+
+        public Point OutputConnectionPosition => new Point(X + Width, Y + Height / 2);
+
         
+        public void OnOutputConnectionPositionChanged()
+        {
+            var connectionPosition = OutputConnectionPosition;
+            foreach (var c in OutputConnectios)
+                c.StartPoint = connectionPosition;
+        }
+
+
+        public Point[] InputConnectionsPositions => InputConnections.Select(
+                (c, i) => new {
+                    SourceY = c.SourceNode.Y,
+                    P =  new Point(X, this.Y + Height * (i + 1) / (InputConnections.Count + 1))
+                }).OrderBy(anon => anon.SourceY).Select(anon => anon.P).ToArray();
+            
+
+        public void OnInputConnectionsPositionsChanged()
+        {
+            var connectionsPositions = InputConnectionsPositions;
+            for (var i = 0; i < InputConnections.Count; i++)
+                InputConnections[i].EndPoint = connectionsPositions[i];
+        }
+
+
         public string Text { get; set; }
         public bool EditMode { get; set; }
         public bool SelectMode { get; set; }
         public bool InvSelectMode => !SelectMode;
         public bool IntersectsMode { get; set; }
+
+        public int InputsCount { get; set; } = 1;
 
         public Brush BackgroundFillBrush
         {
@@ -64,12 +92,14 @@ namespace Troubleshooting.ViewModels
         private double _y;
         public double Y
         {
-            get { return _y; }
+            get => _y;
             set
             {
                 value = Math.Round(value / 10) * 10;
                 if (_y == value) return;
                 _y = value;
+                foreach (var c in OutputConnectios) c.SinkNode.OnInputConnectionsPositionsChanged();
+                OnInputConnectionsPositionsChanged();
                 OnPropertyChanged();
             }
         }
@@ -156,6 +186,9 @@ namespace Troubleshooting.ViewModels
             Height = 50;
             MinWidth = 40;
             MinHeight = 40;
+            InputConnections.CollectionChanged += (o, e) => OnInputConnectionsPositionsChanged();
+            ;
+            OutputConnectios.CollectionChanged += (o, e) => OnOutputConnectionPositionChanged();
         }
 
         #region OnPropertyChanged

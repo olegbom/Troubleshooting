@@ -10,14 +10,8 @@ namespace Troubleshooting
     {
         public bool IsInEditMode
         {
-            get
-            {
-                return (bool)GetValue(IsInEditModeProperty);
-            }
-            set
-            {
-                SetValue(IsInEditModeProperty, value);
-            }
+            get => (bool)GetValue(IsInEditModeProperty);
+            set => SetValue(IsInEditModeProperty, value);
         }
 
         private EditableTextBlockAdorner _adorner;

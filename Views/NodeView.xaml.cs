@@ -13,7 +13,6 @@ namespace Troubleshooting.Views
         public event MouseButtonEventHandler BorderMoveMouseDown;
         public event MouseButtonEventHandler RectSizeMouseDown;
         public event MouseButtonEventHandler ConnectorOutMouseDown;
-        public event MouseButtonEventHandler ConnectorInMouseUp;
 
         public NodeView()
         {
@@ -34,11 +33,6 @@ namespace Troubleshooting.Views
         private void ConnectorOut_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             ConnectorOutMouseDown?.Invoke(this, e);
-        }
-
-        private void ConnectorIn_OnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            ConnectorInMouseUp?.Invoke(this, e);
         }
     }
 }

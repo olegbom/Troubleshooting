@@ -20,31 +20,29 @@ namespace Troubleshooting.ViewModels
             set
             {
                 if (_sinkNode == value) return;
-                if (_sinkNode != null) _sinkNode.PropertyChanged -= SinkNode_PropertyChanged;
                 _sinkNode = value;
-                _sinkNode.PropertyChanged += SinkNode_PropertyChanged;
-                EndPoint = _sinkNode.ConnectorInPos;
                 OnPropertyChanged();
             }
         }
 
-        private void SinkNode_PropertyChanged(object o, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(NodeViewModel.ConnectorInPos):
-                    EndPoint = SinkNode.ConnectorInPos;
-                    break;
-            }
-        }
-
-
+    
         public Point EndPoint { get; set; }
         public Point StartPoint { get; set; }
-      
+
+        public Point LocalEndPoint => new Point(EndPoint.X - StartPoint.X, EndPoint.Y - StartPoint.Y);
+
+        public Point LineSegment1 => new Point((EndPoint.X - StartPoint.X) / 2, 0);
+        public Point LineSegment2 => new Point((EndPoint.X - StartPoint.X) / 2, EndPoint.Y - StartPoint.Y);
+
+        public Point ArrowTopPoint => LocalEndPoint + new Vector(-6,-4);
+        public Point ArrowBottomPoint => LocalEndPoint + new Vector(-6,4);
+
+
+
         public double X => StartPoint.X;
         public double Y => StartPoint.Y;
         public double X2 => EndPoint.X - StartPoint.X;
+
         public double Y2 => EndPoint.Y - StartPoint.Y;
        
 
@@ -52,20 +50,8 @@ namespace Troubleshooting.ViewModels
         public ConnectionViewModel(NodeViewModel source)
         {
             SourceNode = source;
-            source.ConnectionOut = this;
-            StartPoint = SourceNode.ConnectorOutPos;
-            EndPoint = SourceNode.ConnectorOutPos;
-            SourceNode.PropertyChanged += SourceNode_PropertyChanged;
-
-        }
-
-        private void SourceNode_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(NodeViewModel.ConnectorOutPos):
-                    StartPoint = SourceNode.ConnectorOutPos; break;
-            }
+            source.OutputConnectios.Add(this);
+            EndPoint = StartPoint;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
