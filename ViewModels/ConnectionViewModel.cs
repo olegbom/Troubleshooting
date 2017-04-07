@@ -23,16 +23,15 @@ namespace Troubleshooting.ViewModels
             {
                 if (_sinkNode == value) return;
                 _sinkNode = value;
+                UpdateEndConnectionOrientation();
                 OnPropertyChanged();
+                _sinkNode.OnInputConnectionsPositionsChanged();
             }
         }
 
         public Orientation StartConnectionOrientation { get; set; }
         
         
-       
-
-
 
         public Point EndPoint { get; set; }
         
@@ -40,6 +39,7 @@ namespace Troubleshooting.ViewModels
         public void OnStartPointChanged()
         {
             UpdateEndConnectionOrientation();
+            _sinkNode?.OnInputConnectionsPositionsChanged();
         }
 
         public void UpdateEndConnectionOrientation()

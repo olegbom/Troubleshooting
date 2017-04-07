@@ -143,38 +143,79 @@ namespace Troubleshooting.ViewModels
             }
         }
 
+        public double BorderWidth 
+        {
+            get
+            {
+                switch (OutOrientation)
+                {
+                    case Orientation.Bottom: return Width;
+                    case Orientation.Right: return Width-10;
+                    case Orientation.Top: return Width;
+                    case Orientation.Left: return Width-10;
+                    default: return Width;
+                }
+            }
+        }
+
+        public double BorderHeight
+        {
+            get
+            {
+                switch (OutOrientation)
+                {
+                    case Orientation.Bottom: return Height-10;
+                    case Orientation.Right: return Height;
+                    case Orientation.Top: return Height-10;
+                    case Orientation.Left: return Height;
+                    default: return Height;
+                }
+            }
+        }
+
         public Point[] InputConnectionsPositions
         {
             get
             {
-                var grouped = InputConnections.GroupBy(c => c.EndConnectionOrientation);
-                var connCount = InputConnections.Count;
-                var result = new Point[connCount];
+                var grouped = InputConnections.Select((c,i) => new{I = i, C = c }).GroupBy(g => g.C.EndConnectionOrientation);
+                var result = new Point[InputConnections.Count];
+                var height = BorderHeight;
+                var width = BorderWidth;
+                var deltaX = (OutOrientation == Orientation.Left) ? 10 : 0;
+                var deltaY = (OutOrientation == Orientation.Top) ? 10 : 0;
                 foreach (var gr in grouped)
                 {
-                    ConnectionViewModel[] ordered;
+                    
                     switch (gr.Key)
                     {
                         case Orientation.Left:
-                            ordered = gr.OrderBy(c => c.Y).ToArray();
+                        {
+                            var ordered = gr.OrderBy(g => g.C.Y).ToArray();
                             for (int i = 0, count = ordered.Length; i < count; i++)
-                                result[InputConnections.IndexOf(ordered[i])] = new Point(X, Y + Height * (i + 1) / (count + 1));
-                            break;
+                                result[ordered[i].I] = new Point(X + deltaX, Y + height * (i + 1) / (count + 1) + deltaY);
+                        }
+                        break;
                         case Orientation.Bottom:
-                            ordered = gr.OrderBy(c => c.X).ToArray();
+                        {
+                            var ordered = gr.OrderBy(g => g.C.X).ToArray();
                             for (int i = 0, count = ordered.Length; i < count; i++)
-                                result[InputConnections.IndexOf(ordered[i])] = new Point(X + Width * (i + 1) / (count + 1), Y + Height);
-                            break;
+                                result[ordered[i].I] = new Point(X + width * (i + 1) / (count + 1) + deltaX, Y + height + deltaY);
+                        }
+                        break;
                         case Orientation.Right:
-                            ordered = gr.OrderBy(c => c.Y).ToArray();
+                        {
+                            var ordered = gr.OrderBy(g => g.C.Y).ToArray();
                             for (int i = 0, count = ordered.Length; i < count; i++)
-                                result[InputConnections.IndexOf(ordered[i])] = new Point(X + Width, Y + Height * (i + 1) / (count + 1));
-                            break;
+                                result[ordered[i].I] = new Point(X + width + deltaX, Y + height * (i + 1) / (count + 1) + deltaY);
+                        }
+                        break;
                         case Orientation.Top:
-                            ordered = gr.OrderBy(c => c.X).ToArray();
+                        {
+                            var ordered = gr.OrderBy(g => g.C.X).ToArray();
                             for (int i = 0, count = ordered.Length; i < count; i++)
-                                result[InputConnections.IndexOf(ordered[i])] = new Point(X + Width * (i + 1) / (count + 1), Y );
-                            break;
+                                result[ordered[i].I] = new Point(X + width * (i + 1) / (count + 1) + deltaX, Y + deltaY);
+                        }
+                        break;
                     }
                 }
                 return result;
@@ -233,9 +274,9 @@ namespace Troubleshooting.ViewModels
                 switch (OutOrientation)
                 {
                     case Orientation.Bottom: return new Point(X + Width / 2, Y + Height);
-                    case Orientation.Right: return new Point(X + Width, Y + Height / 2 - 1);
+                    case Orientation.Right: return new Point(X + Width, Y + Height / 2);
                     case Orientation.Top: return new Point(X + Width / 2, Y);
-                    case Orientation.Left: return new Point(X, Y + Height / 2 - 1);
+                    case Orientation.Left: return new Point(X, Y + Height / 2);
                     default: return new Point(X + Width, Y + Height / 2 - 1);
                 }
 

@@ -169,6 +169,7 @@ namespace Troubleshooting.Views
                         ViewModel.SelectRectangle.Visible = false;
                         break;
                     case MouseHandlingMode.OutConnectorRotate:
+                        mouseHandlingMode = MouseHandlingMode.None;
                         RotateNodeView.ReleaseMouseCapture();
                         break;
                 }
@@ -251,7 +252,6 @@ namespace Troubleshooting.Views
                     ConnectionRoute = connectionViewModel;
                 } else if (e.ChangedButton == MouseButton.Right)
                 {
-                    node.CaptureMouse();
                     RotateNodeView = node;
                     mouseHandlingMode = MouseHandlingMode.OutConnectorRotate;
                 }

@@ -59,10 +59,10 @@
             </Grid>
         </Border>
         <Line Grid.Column="{Binding LineConnectorGridColumn}" Grid.Row="{Binding LineConnectorGridRow}" 
-              StrokeThickness="2" Stroke="Black" X1="0" Y1="0" X2 ="10" Y2="0" Margin="-1,0,0,0"
+              StrokeThickness="2" Stroke="Black" X1="0" Y1="1" X2 ="10" Y2="1" Margin="-1,0,0,0"
               HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True">
             <Line.LayoutTransform>
-                <RotateTransform Angle="{Binding LineConnectorRotate}" CenterX="5" ></RotateTransform>
+                <RotateTransform Angle="{Binding LineConnectorRotate}" CenterX="5" CenterY="1"></RotateTransform>
             </Line.LayoutTransform>
         </Line>
         <Grid Grid.ColumnSpan="3" Grid.RowSpan="3" Visibility="{Binding Path = EditMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
