@@ -58,7 +58,7 @@ namespace Troubleshooting.ViewModels
                     foreach (ConnectionViewModel connection in e.OldItems)
                     {
                         connection.SourceNode.OutputConnections.Remove(connection);
-                        connection.SinkNode.InputConnections.Remove(connection);
+                        connection.SinkNode?.InputConnections.Remove(connection);
                     }    
             };
 

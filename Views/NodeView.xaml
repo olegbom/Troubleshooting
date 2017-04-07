@@ -17,6 +17,7 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <conv:BoolToBrushConverter x:Key="IntersectsConverter"/>
+        <conv:BoolToBrushConverter TrueBrush="DodgerBlue" FalseBrush="White" x:Key="SelectToBrushConverter"></conv:BoolToBrushConverter>
         <Style x:Key="EditRectangle" TargetType="Rectangle">
             <Setter Property="Stroke" Value="CadetBlue"/>
             <Setter Property="StrokeThickness" Value="1"/>
@@ -29,14 +30,21 @@
     </UserControl.Resources>
     <Grid Background="White" >
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
         <Border x:Name="BorderMove"
                 BorderThickness="2"
                 BorderBrush="{Binding Path = IntersectsMode, Mode=OneWay, Converter={StaticResource IntersectsConverter}}"
-                Background="{Binding BackgroundFillBrush, Mode=OneWay}"
-                Grid.Column="0"
+                Background="{Binding SelectMode, Mode=OneWay, Converter={StaticResource SelectToBrushConverter}}"
+                Grid.Column="1" Grid.Row="1"
                 Cursor="SizeAll"
                 MouseDown="BorderMove_OnMouseDown">
             <Grid>
@@ -47,19 +55,25 @@
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Center"
                                                    SnapsToDevicePixels="True" Cursor="IBeam" />
-                
+
             </Grid>
         </Border>
-        <Line Grid.Column="1" StrokeThickness="2" Stroke="Black" X1="0" Y1="1" X2 ="10" Y2="1" Margin="-1,0,0,0"
-              HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True"/>
-        <Grid Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding Path = EditMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+        <Line Grid.Column="{Binding LineConnectorGridColumn}" Grid.Row="{Binding LineConnectorGridRow}" 
+              StrokeThickness="2" Stroke="Black" X1="0" Y1="0" X2 ="10" Y2="0" Margin="-1,0,0,0"
+              HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True">
+            <Line.LayoutTransform>
+                <RotateTransform Angle="{Binding LineConnectorRotate}" CenterX="5" ></RotateTransform>
+            </Line.LayoutTransform>
+        </Line>
+        <Grid Grid.ColumnSpan="3" Grid.RowSpan="3" Visibility="{Binding Path = EditMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
             <Rectangle StrokeThickness="2" Stroke="Green" SnapsToDevicePixels="True" Margin="-3"
                        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" StrokeDashArray="1 1" />
             <Rectangle x:Name="RectSizeBR" Style="{StaticResource EditRectangle}" Stroke="CadetBlue"
                        Fill="SkyBlue" VerticalAlignment="Bottom" HorizontalAlignment="Right" Cursor="SizeNWSE"
                        MouseDown="RectSizeBR_OnMouseDown" />
             <Rectangle  x:Name="ConnectorOut" Style="{StaticResource EditRectangle}" Stroke="DarkOrange"
-                        Fill="OrangeRed" VerticalAlignment="Center" HorizontalAlignment="Right" Cursor="Cross"
+                        VerticalAlignment="{Binding ConnectorOutVerticalAlignment}" Fill="OrangeRed" 
+                        HorizontalAlignment="{Binding ConnectorOutHorizontalAlignment}" Cursor="Cross"
                         MouseDown="ConnectorOut_OnMouseDown" />
         </Grid>
         

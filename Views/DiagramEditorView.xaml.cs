@@ -17,7 +17,8 @@ namespace Troubleshooting.Views
         DraggingNode, 
         ResizeNode, 
         ConnectionRoute,
-        SelectRect
+        SelectRect,
+        OutConnectorRotate
     }
     /// <summary>
     /// Логика взаимодействия для DiagramEditorView.xaml
@@ -119,7 +120,10 @@ namespace Troubleshooting.Views
                     case MouseHandlingMode.None:
                         mouseMoveConnectionBetweenDownAndUp = true;
                         break;
-                    
+                    case MouseHandlingMode.OutConnectorRotate:
+                        curContentPoint = e.GetPosition(DiagramGrid);
+                        RotateNodeView.ViewModel.SetOrientationTo(curContentPoint);
+                        break;
                 }
             };
 
@@ -164,6 +168,9 @@ namespace Troubleshooting.Views
 
                         ViewModel.SelectRectangle.Visible = false;
                         break;
+                    case MouseHandlingMode.OutConnectorRotate:
+                        RotateNodeView.ReleaseMouseCapture();
+                        break;
                 }
             };
         }
@@ -171,6 +178,7 @@ namespace Troubleshooting.Views
         private NodeView DraggedNodeView; 
         private IEnumerable<NodeViewModel> DraggedNodeViewModels;
         private NodeView ResizeNodeView;
+        private NodeView RotateNodeView;
         private ConnectionViewModel ConnectionRoute;
         private MouseHandlingMode mouseHandlingMode = MouseHandlingMode.None;
         private Point origContentMouseDownPoint;
@@ -230,13 +238,23 @@ namespace Troubleshooting.Views
                 return;
             origContentMouseDownPoint = e.GetPosition(DiagramGrid);
 
+
+
             if (sender is NodeView node)
             {
-                ConnectionViewModel connectionViewModel = new ConnectionViewModel(node.ViewModel);
-                connectionViewModel.IsHitTestVisible = false;
-                ViewModel.Connections.Add(connectionViewModel);
-                mouseHandlingMode = MouseHandlingMode.ConnectionRoute;
-                ConnectionRoute = connectionViewModel;
+                if (e.ChangedButton == MouseButton.Left)
+                {
+                    ConnectionViewModel connectionViewModel = new ConnectionViewModel(node.ViewModel);
+                    connectionViewModel.IsHitTestVisible = false;
+                    ViewModel.Connections.Add(connectionViewModel);
+                    mouseHandlingMode = MouseHandlingMode.ConnectionRoute;
+                    ConnectionRoute = connectionViewModel;
+                } else if (e.ChangedButton == MouseButton.Right)
+                {
+                    node.CaptureMouse();
+                    RotateNodeView = node;
+                    mouseHandlingMode = MouseHandlingMode.OutConnectorRotate;
+                }
                 e.Handled = true;
             }
         }

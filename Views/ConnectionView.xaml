@@ -18,12 +18,15 @@
                     <PathFigure StartPoint="0,0">
                         <BezierSegment Point1="{Binding LineSegment1}"
                                        Point2="{Binding LineSegment2}"
-                                       Point3="{Binding LocalEndPoint}">   
+                                       Point3="{Binding BezieEndPoint}">   
                         </BezierSegment>
                     </PathFigure>
                     <PathFigure StartPoint="{Binding ArrowTopPoint}">
                         <LineSegment  Point="{Binding LocalEndPoint}"/>
                         <LineSegment  Point="{Binding ArrowBottomPoint}"/>
+                    </PathFigure>
+                    <PathFigure StartPoint="{Binding BezieEndPoint}">
+                        <LineSegment  Point="{Binding LocalEndPoint}"/>
                     </PathFigure>
                 </PathGeometry.Figures>
             </PathGeometry>
