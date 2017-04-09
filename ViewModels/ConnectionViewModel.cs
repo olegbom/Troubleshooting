@@ -89,11 +89,16 @@ namespace Troubleshooting.ViewModels
             {
                 switch (StartConnectionOrientation)
                 {
-                    case Orientation.Bottom: return new Point(0, (EndPoint.Y - StartPoint.Y - 10) / 2);
-                    case Orientation.Right: return new Point((EndPoint.X - StartPoint.X - 10) / 2, 0);
-                    case Orientation.Top: return new Point(0, (EndPoint.Y - StartPoint.Y - 10) / 2);
-                    case Orientation.Left: return new Point((EndPoint.X - StartPoint.X - 10) / 2, 0);
-                    default : return new Point((EndPoint.X - StartPoint.X - 10) / 2, 0);
+                    case Orientation.Bottom:
+                        return new Point(0, (EndPoint.Y - StartPoint.Y + 10) / 2);
+                    case Orientation.Right:
+                        return new Point((EndPoint.X - StartPoint.X - 10) / 2, 0);
+                    case Orientation.Top:
+                        return new Point(0, (EndPoint.Y - StartPoint.Y - 10) / 2);
+                    case Orientation.Left:
+                        return new Point((EndPoint.X - StartPoint.X + 10) / 2, 0);
+                    default :
+                        return new Point((EndPoint.X - StartPoint.X - 10) / 2, 0);
                 }
                 
             }
@@ -106,13 +111,13 @@ namespace Troubleshooting.ViewModels
                 switch (EndConnectionOrientation)
                 {
                     case Orientation.Bottom:
-                        return new Point(EndPoint.X - StartPoint.X, (EndPoint.Y - StartPoint.Y - 10) / 2);
+                        return new Point(EndPoint.X - StartPoint.X, (EndPoint.Y - StartPoint.Y + 10) / 2);
                     case Orientation.Right:
                         return new Point((EndPoint.X - StartPoint.X - 10) / 2, EndPoint.Y - StartPoint.Y);
                     case Orientation.Top:
                         return new Point(EndPoint.X - StartPoint.X, (EndPoint.Y - StartPoint.Y - 10) / 2);
                     case Orientation.Left:
-                        return new Point((EndPoint.X - StartPoint.X - 10) / 2, EndPoint.Y - StartPoint.Y);
+                        return new Point((EndPoint.X - StartPoint.X + 10) / 2, EndPoint.Y - StartPoint.Y);
                     default:
                         return new Point((EndPoint.X - StartPoint.X - 10) / 2, EndPoint.Y - StartPoint.Y);
                 }
@@ -129,7 +134,7 @@ namespace Troubleshooting.ViewModels
                     case Orientation.Right: return LocalEndPoint + new Vector(6, -4);
                     case Orientation.Top: return LocalEndPoint + new Vector(-4, -6);
                     case Orientation.Left: return LocalEndPoint + new Vector(-6, 4);
-                    default: return LocalEndPoint + new Vector(-10, 0);
+                    default: return LocalEndPoint + new Vector(6, -4);
                 }
             }
         }
@@ -144,7 +149,7 @@ namespace Troubleshooting.ViewModels
                     case Orientation.Right: return LocalEndPoint + new Vector(6, 4);
                     case Orientation.Top: return LocalEndPoint + new Vector(4, -6);
                     case Orientation.Left: return LocalEndPoint + new Vector(-6, -4);
-                    default: return LocalEndPoint + new Vector(-10, 0);
+                    default: return LocalEndPoint + new Vector(6, 4);
                 }
             }
         }

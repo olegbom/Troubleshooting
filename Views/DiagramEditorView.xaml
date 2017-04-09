@@ -35,7 +35,9 @@
                     </Style>
                 </ItemsControl.ItemContainerStyle>
                 <ItemsControl.Resources>
-                    
+                     <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
+                        <local:ConnectionView DataContext="{Binding}" MouseDown="Connection_OnMouseDown" MouseUp="Connection_OnMouseUp"/>
+                    </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:NodeViewModel}">
                         <local:NodeView DataContext="{Binding}"
                                         BorderMoveMouseDown="Node_OnBorderMoveMouseDown"
@@ -44,10 +46,7 @@
                                         MouseEnter="NodeView_OnMouseEnter"
                                         MouseLeave="NodeView_OnMouseLeave"
                                         MouseUp="NodeView_OnMouseUp"/>
-                        
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
-                        <local:ConnectionView DataContext="{Binding}" MouseDown="Connection_OnMouseDown" MouseUp="Connection_OnMouseUp"/>
+
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:SelectRectangleViewModel}">
                         <Path Visibility="{Binding Visible, Converter={StaticResource BooleanToVisibilityConverter}}"

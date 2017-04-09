@@ -296,7 +296,7 @@ namespace Troubleshooting.Views
             if (mouseHandlingMode != MouseHandlingMode.ConnectionRoute)
                 return;
 
-            if (sender is NodeView node)
+            if (sender is NodeView node && ConnectionRoute.SourceNode != node.ViewModel)
             {
                 ConnectionRoute.IsHitTestVisible = true;
                 node.ViewModel.InputConnections.Add(ConnectionRoute);
