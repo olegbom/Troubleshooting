@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Media;
+using MugenMvvmToolkit.ViewModels;
 using PropertyChanged;
-using Troubleshooting.Annotations;
+using Troubleshooting.Models;
 
 namespace Troubleshooting.ViewModels
 {
@@ -18,7 +15,7 @@ namespace Troubleshooting.ViewModels
 
 
     [ImplementPropertyChanged]
-    public class NodeViewModel : INotifyPropertyChanged
+    public class NodeViewModel: WorkspaceViewModel
     {
 
         public ObservableCollection<ConnectionViewModel> OutputConnections { get; } =
@@ -40,33 +37,33 @@ namespace Troubleshooting.ViewModels
             get => new Point(X, Y);
             set
             {
-                X = value.X;
-                Y = value.Y;
+                X = (int)value.X;
+                Y = (int)value.Y;
                 OnPropertyChanged();
             }
 
         }
 
-        private double _x;
-        public double X
+        private int _x;
+        public int X
         {
             get => _x;
             set
             {
-                value = Math.Round(value / 10) * 10;
+                value = (value / 10) * 10;
                 if (_x == value) return;
                 _x = value;
                 OnPropertyChanged();
             }
         }
 
-        private double _y;
-        public double Y
+        private int _y;
+        public int Y
         {
             get => _y;
             set
             {
-                value = Math.Round(value / 10) * 10;
+                value = (value / 10) * 10;
                 if (_y == value) return;
                 _y = value;
                 foreach (var c in OutputConnections) c.SinkNode.OnInputConnectionsPositionsChanged();
@@ -77,22 +74,22 @@ namespace Troubleshooting.ViewModels
         public Vector OldSize { get; set; }
         public Vector Size
         {
-            get { return new Vector(Width,Height);}
+            get => new Vector(Width,Height);
             set
             {
-                Width = value.X;
-                Height = value.Y;
+                Width = (int)value.X;
+                Height = (int)value.Y;
                 OnPropertyChanged();
             }
         }
 
-        private double _minWidth;
-        public double MinWidth
+        private int _minWidth;
+        public int MinWidth
         {
-            get { return _minWidth; }
+            get => _minWidth;
             set
             {
-                value = Math.Round(value / 10) * 10;
+                value = (value / 10) * 10;
                 if (_minWidth == value) return;
                 _minWidth = value;
                 if (Width < _minWidth) Width = _minWidth;
@@ -101,13 +98,13 @@ namespace Troubleshooting.ViewModels
         }
 
 
-        private double _minHeight;
-        public double MinHeight
+        private int _minHeight;
+        public int MinHeight
         {
-            get { return _minHeight; }
+            get => _minHeight;
             set
             {
-                value = Math.Round(value / 10) * 10;
+                value = (value / 10) * 10;
                 if (_minHeight == value) return;
                 _minHeight = value;
                 if (Height < _minHeight) Height = _minHeight;
@@ -115,13 +112,13 @@ namespace Troubleshooting.ViewModels
             }
         }
 
-        private double _width;
-        public double Width
+        private int _width;
+        public int Width
         {
-            get { return _width; }
+            get => _width;
             set
             {
-                value = Math.Round(value / 10) * 10;
+                value = (value / 10) * 10;
                 if (value < MinWidth) value = MinWidth;
                 if(_width == value) return;
                 _width = value;
@@ -129,13 +126,13 @@ namespace Troubleshooting.ViewModels
             }
         }
 
-        private double _height;
-        public double Height
+        private int _height;
+        public int Height
         {
-            get { return _height; }
+            get => _height;
             set
             {
-                value = Math.Round(value / 10) * 10;
+                value = (value / 10) * 10;
                 if (value < MinHeight) value = MinHeight;
                 if (_height == value) return;
                 _height = value;
@@ -143,7 +140,7 @@ namespace Troubleshooting.ViewModels
             }
         }
 
-        public double BorderWidth 
+        public int BorderWidth 
         {
             get
             {
@@ -158,7 +155,7 @@ namespace Troubleshooting.ViewModels
             }
         }
 
-        public double BorderHeight
+        public int BorderHeight
         {
             get
             {
@@ -351,17 +348,17 @@ namespace Troubleshooting.ViewModels
             }
         }
 
-        public int LineConnectorRotate
+        public bool IsLineConnectorRotate
         {
             get
             {
                 switch (OutOrientation)
                 {
-                    case Orientation.Bottom: return 90;
-                    case Orientation.Right: return 0;
-                    case Orientation.Top: return 90;
-                    case Orientation.Left: return 0;
-                    default: return 0;
+                    case Orientation.Bottom: return true;
+                    case Orientation.Right: return false;
+                    case Orientation.Top: return true;
+                    case Orientation.Left: return false;
+                    default: return false;
                 }
             }
         }
@@ -375,26 +372,53 @@ namespace Troubleshooting.ViewModels
         public bool IntersectsWith(NodeViewModel node) => Rect().IntersectsWith(node.Rect());
         public bool IntersectsWith(NodeViewModel node, Point newPos) => Rect(newPos).IntersectsWith(node.Rect());
         public bool IntersectsWith(NodeViewModel node, Vector newSize) => Rect(newSize).IntersectsWith(node.Rect());
-        
-        public NodeViewModel()
+
+        public NodeModel Model { get; }
+
+        public NodeViewModel(NodeModel model)
         {
+            Model = model;
+
+            InputConnections.CollectionChanged += (o, e) =>
+            {
+                var newItems = e.NewItems;
+                if(newItems != null)
+                    foreach (ConnectionViewModel connection in newItems)
+                    {
+                        Model.InputConnections.Add(connection.Model);
+                    }
+                var oldItems = e.OldItems;
+                if(oldItems != null)
+                    foreach (ConnectionViewModel connection in oldItems)
+                    {
+                        Model.InputConnections.Remove(connection.Model);
+                    }
+            };
+
+            OutputConnections.CollectionChanged += (o, e) =>
+            {
+                var newItems = e.NewItems;
+                if (newItems != null)
+                    foreach (ConnectionViewModel connection in newItems)
+                    {
+                        Model.OutputConnections.Add(connection.Model);
+                    }
+                var oldItems = e.OldItems;
+                if (oldItems != null)
+                    foreach (ConnectionViewModel connection in oldItems)
+                    {
+                        Model.OutputConnections.Remove(connection.Model);
+                    }
+            };
+
             Width = 40;
             Height = 50;
             MinWidth = 40;
             MinHeight = 40;
             InputConnections.CollectionChanged += (o, e) => OnInputConnectionsPositionsChanged();
-            ;
             OutputConnections.CollectionChanged += (o, e) => OnOutputConnectionPositionChanged();
         }
 
-        #region OnPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
+     
     }
 }

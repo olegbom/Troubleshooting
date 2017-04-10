@@ -4,8 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Shapes;
-using Troubleshooting.Annotations;
+using Troubleshooting.Models;
 using Troubleshooting.ViewModels;
 
 
@@ -108,7 +107,7 @@ namespace Troubleshooting.Views
                         break;
                     case MouseHandlingMode.ConnectionRoute:
                         curContentPoint = e.GetPosition(DiagramGrid);
-                        ConnectionRoute.EndPoint = curContentPoint;
+                        ViewModel.RoutedConnectionViewModel.EndPoint = curContentPoint;
                         
                         break;
                     case MouseHandlingMode.SelectRect:
@@ -150,7 +149,7 @@ namespace Troubleshooting.Views
                         break;
                     case MouseHandlingMode.ConnectionRoute:
                         mouseHandlingMode = MouseHandlingMode.None;
-                        ViewModel.Connections.Remove(ConnectionRoute);
+                        ViewModel.RoutedConnectionViewModel = null;
                         break;
                     case MouseHandlingMode.SelectRect:
                         mouseHandlingMode = MouseHandlingMode.None;
@@ -180,7 +179,6 @@ namespace Troubleshooting.Views
         private IEnumerable<NodeViewModel> DraggedNodeViewModels;
         private NodeView ResizeNodeView;
         private NodeView RotateNodeView;
-        private ConnectionViewModel ConnectionRoute;
         private MouseHandlingMode mouseHandlingMode = MouseHandlingMode.None;
         private Point origContentMouseDownPoint;
 
@@ -247,9 +245,9 @@ namespace Troubleshooting.Views
                 {
                     ConnectionViewModel connectionViewModel = new ConnectionViewModel(node.ViewModel);
                     connectionViewModel.IsHitTestVisible = false;
-                    ViewModel.Connections.Add(connectionViewModel);
+                    ViewModel.RoutedConnectionViewModel = connectionViewModel;
                     mouseHandlingMode = MouseHandlingMode.ConnectionRoute;
-                    ConnectionRoute = connectionViewModel;
+                    
                 } else if (e.ChangedButton == MouseButton.Right)
                 {
                     RotateNodeView = node;
@@ -262,7 +260,9 @@ namespace Troubleshooting.Views
 
         private void MenuItemNewBlock_OnClick(object sender, RoutedEventArgs e)
         {
-            NodeViewModel nodeViewModel = new NodeViewModel{Text = "Название", X = 50, Y = 50};
+            NodeViewModel nodeViewModel = new NodeViewModel(
+                new NodeModel(ViewModel.Nodes.Count+1))
+                {Text = "Название", X = 50, Y = 50};
             ViewModel.Nodes.Add(nodeViewModel);
         }
 
@@ -296,12 +296,14 @@ namespace Troubleshooting.Views
             if (mouseHandlingMode != MouseHandlingMode.ConnectionRoute)
                 return;
 
-            if (sender is NodeView node && ConnectionRoute.SourceNode != node.ViewModel)
+            if (sender is NodeView node && ViewModel.RoutedConnectionViewModel.SourceNode != node.ViewModel)
             {
-                ConnectionRoute.IsHitTestVisible = true;
-                node.ViewModel.InputConnections.Add(ConnectionRoute);
+                ViewModel.RoutedConnectionViewModel.IsHitTestVisible = true;
+                node.ViewModel.InputConnections.Add(ViewModel.RoutedConnectionViewModel);
                 mouseHandlingMode = MouseHandlingMode.None;
-                ConnectionRoute.SinkNode = node.ViewModel;
+                ViewModel.RoutedConnectionViewModel.SinkNode = node.ViewModel;
+                ViewModel.Connections.Add(ViewModel.RoutedConnectionViewModel);
+                ViewModel.RoutedConnectionViewModel = null;
             }
         }
 

@@ -20,6 +20,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <Menu Grid.Row="0" >
+            <MenuItem Header="Добавить новый блок" Click="MenuItemNewBlock_OnClick" ></MenuItem>
+            <MenuItem Header="Завершить" Click="MenuItemEnd_OnClick"></MenuItem>
+            <MenuItem Header="Печать" Click="MenuPrint_OnClick"></MenuItem>
+        </Menu>
+
 
         <Grid x:Name="DiagramGrid" Background="White" Grid.Row="1">
             <ItemsControl ItemsSource="{Binding DiagramItems}"  >
@@ -65,15 +71,12 @@
                     </DataTemplate>
                 </ItemsControl.Resources>
 
-            </ItemsControl></Grid >
-
-
-        <Menu Grid.Row="0" >
-            <MenuItem Header="Добавить новый блок" Click="MenuItemNewBlock_OnClick" ></MenuItem>
-            <MenuItem Header="Завершить" Click="MenuItemEnd_OnClick"></MenuItem>
-            <MenuItem Header="Печать" Click="MenuPrint_OnClick"></MenuItem>
-        </Menu>
-
-
+            </ItemsControl>
+        </Grid >
+        
+        
+       
+        
+    
     </Grid>
 </Window>

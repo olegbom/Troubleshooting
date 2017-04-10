@@ -1,15 +1,13 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Data;
-using System.Runtime.CompilerServices;
 using System.Windows;
+using MugenMvvmToolkit.ViewModels;
 using PropertyChanged;
-using Troubleshooting.Annotations;
+using Troubleshooting.Models;
 
 namespace Troubleshooting.ViewModels
 {
     [ImplementPropertyChanged]
-    public class ConnectionViewModel: INotifyPropertyChanged
+    public class ConnectionViewModel: WorkspaceViewModel
     {
 
         public NodeViewModel SourceNode { get; }
@@ -23,6 +21,7 @@ namespace Troubleshooting.ViewModels
             {
                 if (_sinkNode == value) return;
                 _sinkNode = value;
+                Model.SinkNode = value.Model;
                 UpdateEndConnectionOrientation();
                 OnPropertyChanged();
                 _sinkNode.OnInputConnectionsPositionsChanged();
@@ -157,26 +156,21 @@ namespace Troubleshooting.ViewModels
 
         public double X => StartPoint.X;
         public double Y => StartPoint.Y;
-        public double X2 => EndPoint.X - StartPoint.X;
-        public double Y2 => EndPoint.Y - StartPoint.Y;
        
         public bool SelectMode { get; set; }
         public bool IsHitTestVisible { get; set; }
 
+        public ConnectionModel Model { get; }
+
         public ConnectionViewModel(NodeViewModel source)
         {
+            Model = new ConnectionModel(source.Model);
             SourceNode = source;
             source.OutputConnections.Add(this);
             EndPoint = StartPoint;
             StartConnectionOrientation = source.OutOrientation;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+      
     }
 }

@@ -1,39 +1,55 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Linq;
 using System.Windows.Data;
+using MugenMvvmToolkit.ViewModels;
 using PropertyChanged;
-using Troubleshooting.Annotations;
+using Troubleshooting.Models;
 
 namespace Troubleshooting.ViewModels
 {
     [ImplementPropertyChanged]
-    public class DiagramEditorViewModel: INotifyPropertyChanged
+    public class DiagramEditorViewModel: ViewModelBase
     {
         public ObservableCollection<NodeViewModel> Nodes { get; } = new ObservableCollection<NodeViewModel>();
         public ObservableCollection<ConnectionViewModel> Connections { get; } = new ObservableCollection<ConnectionViewModel>();
 
-
-
+        private ConnectionViewModel _routedConnectionViewModel;
+        public ConnectionViewModel RoutedConnectionViewModel
+        {
+            get => _routedConnectionViewModel;
+            set
+            {
+                if (_routedConnectionViewModel == value) return;
+                if(_routedConnectionViewModel != null)
+                    DiagramItems.Remove(_routedConnectionViewModel);
+                _routedConnectionViewModel = value;
+                if (_routedConnectionViewModel != null)
+                    DiagramItems.Add(_routedConnectionViewModel);
+                OnPropertyChanged();
+            }
+        }
         
         public SelectRectangleViewModel SelectRectangle { get; } = new SelectRectangleViewModel();
         public CompositeCollection DiagramItems { get; } = new CompositeCollection();
 
         public Visibility InputConnectorVisiblity { get; set; }
         
-
+        public DiagramEditorModel Model { get; } = new DiagramEditorModel();
+        
         public DiagramEditorViewModel()
         {
+            
+
+
             DiagramItems.Add(new CollectionContainer() {Collection = Nodes});
             DiagramItems.Add(new CollectionContainer() {Collection = Connections});
             DiagramItems.Add(SelectRectangle);
 
             Nodes.CollectionChanged += (o, e) =>
             {
-                if(e.OldItems !=null)
-                    foreach (NodeViewModel node in e.OldItems)
+                var oldItems = e.OldItems;
+                if(oldItems !=null)
+                    foreach (NodeViewModel node in oldItems)
                     {
                         for (var i = node.InputConnections.Count - 1; i >= 0; i--)
                         {
@@ -49,6 +65,14 @@ namespace Troubleshooting.ViewModels
                         }
 
                         node.OutputConnections.Clear();
+
+                        Model.Nodes.Remove(node.Model);
+                    }
+                var newItems = e.NewItems;
+                if (newItems!=null)
+                    foreach (NodeViewModel node in newItems)
+                    {
+                        Model.Nodes.Add(node.Model);
                     }
             };
 
@@ -62,9 +86,9 @@ namespace Troubleshooting.ViewModels
                     }    
             };
 
-            Nodes.Add(new NodeViewModel() { Text = "1", X = 10, Y = 10 });
-            Nodes.Add(new NodeViewModel() { Text = "2", X = 20, Y = 60 });
-            Nodes.Add(new NodeViewModel() { Text = "3", X = 30, Y = 110 });
+            Nodes.Add(new NodeViewModel(new NodeModel(Nodes.Count + 1)) { Text = "1", X = 10, Y = 10 });
+            Nodes.Add(new NodeViewModel(new NodeModel(Nodes.Count + 1)) { Text = "2", X = 20, Y = 60 });
+            Nodes.Add(new NodeViewModel(new NodeModel(Nodes.Count + 1)) { Text = "3", X = 30, Y = 110 });
         }
 
         public FunctionalDiagram GenerateFuctionalDiagram()
@@ -79,14 +103,6 @@ namespace Troubleshooting.ViewModels
             return result;
         }
 
-        #region OnPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion  
+   
     }
 }

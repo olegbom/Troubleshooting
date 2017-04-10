@@ -58,13 +58,18 @@
 
             </Grid>
         </Border>
-        <Line Grid.Column="{Binding LineConnectorGridColumn}" Grid.Row="{Binding LineConnectorGridRow}" 
-              StrokeThickness="2" Stroke="Black" X1="0" Y1="1" X2 ="10" Y2="1" Margin="-1,0,0,0"
-              HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="True">
-            <Line.LayoutTransform>
-                <RotateTransform Angle="{Binding LineConnectorRotate}" CenterX="5" CenterY="1"></RotateTransform>
-            </Line.LayoutTransform>
-        </Line>
+        <Line Grid.Column="{Binding LineConnectorGridColumn}" 
+              Grid.Row="{Binding LineConnectorGridRow}" 
+              StrokeThickness="2" 
+              Stroke="Black"
+              X1="{DataBinding 'IsLineConnectorRotate? 1: 0'}" 
+              Y1="{DataBinding 'IsLineConnectorRotate? 0: 1'}" 
+              X2="{DataBinding 'IsLineConnectorRotate? 1: 10'}" 
+              Y2="{DataBinding 'IsLineConnectorRotate? 10: 1'}" 
+              Margin="-1,0,0,0"
+              HorizontalAlignment="Center" 
+              VerticalAlignment="Center" 
+              SnapsToDevicePixels="True"/>
         <Grid Grid.ColumnSpan="3" Grid.RowSpan="3" Visibility="{Binding Path = EditMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
             <Rectangle StrokeThickness="2" Stroke="Green" SnapsToDevicePixels="True" Margin="-3"
                        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" StrokeDashArray="1 1" />
