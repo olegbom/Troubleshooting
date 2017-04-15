@@ -1,10 +1,9 @@
-﻿using System;
+﻿using MugenMvvmToolkit.ViewModels;
+using PropertyChanged;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using MugenMvvmToolkit.ViewModels;
-using PropertyChanged;
-using Troubleshooting.Models;
 
 namespace Troubleshooting.ViewModels
 {
@@ -30,6 +29,12 @@ namespace Troubleshooting.ViewModels
         public bool InvSelectMode => !SelectMode;
         public bool IntersectsMode { get; set; }
         
+
+        public bool IsWork { get; set; }
+
+
+        
+
         public Point OldPosition { get; set; }
 
         public Point Position
@@ -373,44 +378,10 @@ namespace Troubleshooting.ViewModels
         public bool IntersectsWith(NodeViewModel node, Point newPos) => Rect(newPos).IntersectsWith(node.Rect());
         public bool IntersectsWith(NodeViewModel node, Vector newSize) => Rect(newSize).IntersectsWith(node.Rect());
 
-        public NodeModel Model { get; }
 
-        public NodeViewModel(NodeModel model)
+        public NodeViewModel()
         {
-            Model = model;
-
-            InputConnections.CollectionChanged += (o, e) =>
-            {
-                var newItems = e.NewItems;
-                if(newItems != null)
-                    foreach (ConnectionViewModel connection in newItems)
-                    {
-                        Model.InputConnections.Add(connection.Model);
-                    }
-                var oldItems = e.OldItems;
-                if(oldItems != null)
-                    foreach (ConnectionViewModel connection in oldItems)
-                    {
-                        Model.InputConnections.Remove(connection.Model);
-                    }
-            };
-
-            OutputConnections.CollectionChanged += (o, e) =>
-            {
-                var newItems = e.NewItems;
-                if (newItems != null)
-                    foreach (ConnectionViewModel connection in newItems)
-                    {
-                        Model.OutputConnections.Add(connection.Model);
-                    }
-                var oldItems = e.OldItems;
-                if (oldItems != null)
-                    foreach (ConnectionViewModel connection in oldItems)
-                    {
-                        Model.OutputConnections.Remove(connection.Model);
-                    }
-            };
-
+            
             Width = 40;
             Height = 50;
             MinWidth = 40;

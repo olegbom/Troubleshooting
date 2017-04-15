@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Troubleshooting.Models;
 using Troubleshooting.ViewModels;
 
 
@@ -260,8 +259,7 @@ namespace Troubleshooting.Views
 
         private void MenuItemNewBlock_OnClick(object sender, RoutedEventArgs e)
         {
-            NodeViewModel nodeViewModel = new NodeViewModel(
-                new NodeModel(ViewModel.Nodes.Count+1))
+            NodeViewModel nodeViewModel = new NodeViewModel()
                 {Text = "Название", X = 50, Y = 50};
             ViewModel.Nodes.Add(nodeViewModel);
         }

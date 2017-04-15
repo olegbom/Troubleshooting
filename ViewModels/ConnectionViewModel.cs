@@ -2,12 +2,12 @@
 using System.Windows;
 using MugenMvvmToolkit.ViewModels;
 using PropertyChanged;
-using Troubleshooting.Models;
+
 
 namespace Troubleshooting.ViewModels
 {
     [ImplementPropertyChanged]
-    public class ConnectionViewModel: WorkspaceViewModel
+    public class ConnectionViewModel: WorkspaceViewModel, IDisposable
     {
 
         public NodeViewModel SourceNode { get; }
@@ -21,7 +21,6 @@ namespace Troubleshooting.ViewModels
             {
                 if (_sinkNode == value) return;
                 _sinkNode = value;
-                Model.SinkNode = value.Model;
                 UpdateEndConnectionOrientation();
                 OnPropertyChanged();
                 _sinkNode.OnInputConnectionsPositionsChanged();
@@ -160,17 +159,16 @@ namespace Troubleshooting.ViewModels
         public bool SelectMode { get; set; }
         public bool IsHitTestVisible { get; set; }
 
-        public ConnectionModel Model { get; }
+
 
         public ConnectionViewModel(NodeViewModel source)
         {
-            Model = new ConnectionModel(source.Model);
             SourceNode = source;
             source.OutputConnections.Add(this);
             EndPoint = StartPoint;
             StartConnectionOrientation = source.OutOrientation;
         }
-
-      
+        
+        
     }
 }

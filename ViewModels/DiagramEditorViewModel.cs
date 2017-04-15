@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Data;
 using MugenMvvmToolkit.ViewModels;
 using PropertyChanged;
-using Troubleshooting.Models;
+
 
 namespace Troubleshooting.ViewModels
 {
@@ -28,13 +28,13 @@ namespace Troubleshooting.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        
         
         public SelectRectangleViewModel SelectRectangle { get; } = new SelectRectangleViewModel();
         public CompositeCollection DiagramItems { get; } = new CompositeCollection();
 
         public Visibility InputConnectorVisiblity { get; set; }
-        
-        public DiagramEditorModel Model { get; } = new DiagramEditorModel();
         
         public DiagramEditorViewModel()
         {
@@ -65,30 +65,24 @@ namespace Troubleshooting.ViewModels
                         }
 
                         node.OutputConnections.Clear();
+                    }
 
-                        Model.Nodes.Remove(node.Model);
-                    }
-                var newItems = e.NewItems;
-                if (newItems!=null)
-                    foreach (NodeViewModel node in newItems)
-                    {
-                        Model.Nodes.Add(node.Model);
-                    }
             };
 
             Connections.CollectionChanged += (o, e) =>
             {
-                if(e.OldItems !=null)
-                    foreach (ConnectionViewModel connection in e.OldItems)
+                var oldItems = e.OldItems;
+                if(oldItems != null)
+                    foreach (ConnectionViewModel connection in oldItems)
                     {
                         connection.SourceNode.OutputConnections.Remove(connection);
-                        connection.SinkNode?.InputConnections.Remove(connection);
+                        connection.SinkNode.InputConnections.Remove(connection);
                     }    
             };
 
-            Nodes.Add(new NodeViewModel(new NodeModel(Nodes.Count + 1)) { Text = "1", X = 10, Y = 10 });
-            Nodes.Add(new NodeViewModel(new NodeModel(Nodes.Count + 1)) { Text = "2", X = 20, Y = 60 });
-            Nodes.Add(new NodeViewModel(new NodeModel(Nodes.Count + 1)) { Text = "3", X = 30, Y = 110 });
+            Nodes.Add(new NodeViewModel() { Text = "1", X = 10, Y = 10 });
+            Nodes.Add(new NodeViewModel() { Text = "2", X = 10, Y = 70 });
+            Nodes.Add(new NodeViewModel() { Text = "3", X = 10, Y = 130 });
         }
 
         public FunctionalDiagram GenerateFuctionalDiagram()

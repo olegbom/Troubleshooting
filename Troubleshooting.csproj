@@ -87,9 +87,6 @@
     <Compile Include="EditableTextBlockAdorner.cs" />
     <Compile Include="FunctionalDiagram.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="Models\ConnectionModel.cs" />
-    <Compile Include="Models\DiagramEditorModel.cs" />
-    <Compile Include="Models\NodeModel.cs" />
     <Compile Include="MyTable.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ViewModels\ConnectionViewModel.cs" />
