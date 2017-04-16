@@ -1,14 +1,19 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Data;
-using MugenMvvmToolkit.ViewModels;
 using PropertyChanged;
+using Troubleshooting.Annotations;
 
 
 namespace Troubleshooting.ViewModels
 {
+    [Serializable]
     [ImplementPropertyChanged]
-    public class DiagramEditorViewModel: ViewModelBase
+    public class DiagramEditorViewModel: INotifyPropertyChanged
     {
         public ObservableCollection<NodeViewModel> Nodes { get; } = new ObservableCollection<NodeViewModel>();
         public ObservableCollection<ConnectionViewModel> Connections { get; } = new ObservableCollection<ConnectionViewModel>();
@@ -28,11 +33,10 @@ namespace Troubleshooting.ViewModels
                 OnPropertyChanged();
             }
         }
-
-        
         
         public SelectRectangleViewModel SelectRectangle { get; } = new SelectRectangleViewModel();
-        public CompositeCollection DiagramItems { get; } = new CompositeCollection();
+
+        public  CompositeCollection DiagramItems { get; } = new CompositeCollection();
 
         public Visibility InputConnectorVisiblity { get; set; }
         
@@ -66,7 +70,10 @@ namespace Troubleshooting.ViewModels
 
                         node.OutputConnections.Clear();
                     }
-
+                for (var i = 0; i < Nodes.Count; i++)
+                {
+                    Nodes[i].Zindex = i;
+                }
             };
 
             Connections.CollectionChanged += (o, e) =>
@@ -97,6 +104,13 @@ namespace Troubleshooting.ViewModels
             return result;
         }
 
-   
+        
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

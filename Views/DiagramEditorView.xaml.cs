@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Microsoft.Win32;
 using Troubleshooting.ViewModels;
 
 
@@ -242,8 +245,8 @@ namespace Troubleshooting.Views
             {
                 if (e.ChangedButton == MouseButton.Left)
                 {
-                    ConnectionViewModel connectionViewModel = new ConnectionViewModel(node.ViewModel);
-                    connectionViewModel.IsHitTestVisible = false;
+                    ConnectionViewModel connectionViewModel =
+                        new ConnectionViewModel(node.ViewModel) {IsHitTestVisible = false};
                     ViewModel.RoutedConnectionViewModel = connectionViewModel;
                     mouseHandlingMode = MouseHandlingMode.ConnectionRoute;
                     
@@ -293,8 +296,10 @@ namespace Troubleshooting.Views
         {
             if (mouseHandlingMode != MouseHandlingMode.ConnectionRoute)
                 return;
-
-            if (sender is NodeView node && ViewModel.RoutedConnectionViewModel.SourceNode != node.ViewModel)
+            var nodeSource = ViewModel.RoutedConnectionViewModel.SourceNode;
+            if (sender is NodeView node 
+                && nodeSource != node.ViewModel
+                && !node.ViewModel.IsThisAChild(nodeSource))
             {
                 ViewModel.RoutedConnectionViewModel.IsHitTestVisible = true;
                 node.ViewModel.InputConnections.Add(ViewModel.RoutedConnectionViewModel);
@@ -339,6 +344,55 @@ namespace Troubleshooting.Views
                 clickedConnectionView.ViewModel.SelectMode = !clickedConnectionView.ViewModel.SelectMode;
                 mouseMoveConnectionBetweenDownAndUp = false;
             }
+        }
+
+        private void MenuDependencyTable_OnClick(object sender, RoutedEventArgs e)
+        {
+            var dependencyTableViewModel = new DependencyTableViewModel(ViewModel);
+            var dependencyTableView = new DependencyTableView(dependencyTableViewModel);
+            dependencyTableView.Show();
+        }
+
+        public IEnumerable<NodeViewModel> CopiedNodes;
+
+        private void ContextCopy_OnClick(object sender, RoutedEventArgs e)
+        {
+            CopiedNodes = ViewModel.Nodes.Where(x => x.SelectMode);
+
+        }
+
+        private void MenuOpen_OnClick(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                DefaultExt = ".trs",
+                Filter = "TroubleShooting document (.trs)|*.trs",
+                AddExtension = true
+            };
+            if (openFileDialog.ShowDialog() == true)
+            {
+                DataContext = Serializer.LoadFromBinnary<DiagramEditorViewModel>(openFileDialog.FileName);
+            }
+
+        }
+
+        private void MenuSave_OnClick(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                DefaultExt = ".trs",
+                Filter = "TroubleShooting document (.trs)|*.trs",
+                AddExtension = true
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                Serializer.SaveToBinnary(saveFileDialog.FileName, ViewModel.Nodes[0]);
+            }
+        }
+
+        private void MenuClose_OnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

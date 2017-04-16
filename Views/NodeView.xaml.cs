@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Troubleshooting.ViewModels;
 
@@ -34,5 +35,7 @@ namespace Troubleshooting.Views
         {
             ConnectorOutMouseDown?.Invoke(this, e);
         }
+
+
     }
 }

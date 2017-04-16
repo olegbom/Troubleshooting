@@ -19,19 +19,36 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <Menu Grid.Row="0" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        
+        <Menu Grid.Row="0" Grid.ColumnSpan="2" >
+            <MenuItem Header="Файл">
+                <MenuItem Header="Открыть.." Click="MenuOpen_OnClick"/>
+                <MenuItem Header="Сохранить как" Click="MenuSave_OnClick"/>
+                <Separator/>
+                <MenuItem Header="Выход" Click="MenuClose_OnClick"/>
+            </MenuItem>
             <MenuItem Header="Добавить новый блок" Click="MenuItemNewBlock_OnClick" ></MenuItem>
             <MenuItem Header="Завершить" Click="MenuItemEnd_OnClick"></MenuItem>
             <MenuItem Header="Печать" Click="MenuPrint_OnClick"></MenuItem>
+            <MenuItem Header="Таблица Зависимостей" Click="MenuDependencyTable_OnClick"></MenuItem>
         </Menu>
 
 
-        <Grid x:Name="DiagramGrid" Background="White" Grid.Row="1">
-            <ItemsControl ItemsSource="{Binding DiagramItems}"  >
+        <Grid x:Name="DiagramGrid" Background="White" Grid.Row="1" Grid.Column="0">
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Копировать"  Click="ContextCopy_OnClick"/>
+                </ContextMenu>
+            </Grid.ContextMenu>
+            <ItemsControl ItemsSource="{Binding DiagramItems}">
+                
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <Canvas />
+                        <Canvas/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemContainerStyle>
@@ -72,11 +89,12 @@
                 </ItemsControl.Resources>
 
             </ItemsControl>
-        </Grid >
+        </Grid>
         
-        
+      
        
         
     
     </Grid>
 </Window>
+

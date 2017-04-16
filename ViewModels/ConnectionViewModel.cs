@@ -1,13 +1,16 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
-using MugenMvvmToolkit.ViewModels;
 using PropertyChanged;
+using Troubleshooting.Annotations;
 
 
 namespace Troubleshooting.ViewModels
 {
+    [Serializable]
     [ImplementPropertyChanged]
-    public class ConnectionViewModel: WorkspaceViewModel, IDisposable
+    public class ConnectionViewModel: INotifyPropertyChanged
     {
 
         public NodeViewModel SourceNode { get; }
@@ -168,7 +171,14 @@ namespace Troubleshooting.ViewModels
             EndPoint = StartPoint;
             StartConnectionOrientation = source.OutOrientation;
         }
-        
-        
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

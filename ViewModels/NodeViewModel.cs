@@ -1,9 +1,11 @@
-﻿using MugenMvvmToolkit.ViewModels;
-using PropertyChanged;
+﻿using PropertyChanged;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
+using Troubleshooting.Annotations;
 
 namespace Troubleshooting.ViewModels
 {
@@ -12,11 +14,11 @@ namespace Troubleshooting.ViewModels
         Left, Top, Right, Bottom
     }
 
-
+    [Serializable]
     [ImplementPropertyChanged]
-    public class NodeViewModel: WorkspaceViewModel
+    public class NodeViewModel: INotifyPropertyChanged
     {
-
+    
         public ObservableCollection<ConnectionViewModel> OutputConnections { get; } =
             new ObservableCollection<ConnectionViewModel>();
 
@@ -26,14 +28,26 @@ namespace Troubleshooting.ViewModels
         public string Text { get; set; }
         public bool EditMode { get; set; }
         public bool SelectMode { get; set; }
+        public bool ParentMode { get; set; }
+        public bool ChildMode { get; set; }
         public bool InvSelectMode => !SelectMode;
         public bool IntersectsMode { get; set; }
         
 
         public bool IsWork { get; set; }
 
+        public void ErrorInfluence()
+        {
+            if (IsWork == false) return;
+            IsWork = false;
+            foreach (var connection in OutputConnections)
+                connection.SinkNode.ErrorInfluence();
+            
+        }
 
-        
+        public int? Zindex { get; set; } = null;
+
+        public string SignalText => $"Z{Zindex}";
 
         public Point OldPosition { get; set; }
 
@@ -368,6 +382,11 @@ namespace Troubleshooting.ViewModels
             }
         }
 
+        public int OutputLineX1 => IsLineConnectorRotate ? 1 : 0;
+        public int OutputLineY1 => IsLineConnectorRotate ? 0 : 1;
+        public int OutputLineX2 => IsLineConnectorRotate ? 1 : 10;
+        public int OutputLineY2 => IsLineConnectorRotate ? 10 : 1;
+
 
 
         public Rect Rect() => new Rect(Position, new Size(Width, Height));
@@ -377,6 +396,12 @@ namespace Troubleshooting.ViewModels
         public bool IntersectsWith(NodeViewModel node) => Rect().IntersectsWith(node.Rect());
         public bool IntersectsWith(NodeViewModel node, Point newPos) => Rect(newPos).IntersectsWith(node.Rect());
         public bool IntersectsWith(NodeViewModel node, Vector newSize) => Rect(newSize).IntersectsWith(node.Rect());
+
+        public bool IsThisAChild(NodeViewModel node)
+        {
+            if (OutputConnections.Any(c => c.SinkNode == node)) return true;
+            return OutputConnections.Any(c => c.SinkNode.IsThisAChild(node));
+        }
 
 
         public NodeViewModel()
@@ -390,6 +415,13 @@ namespace Troubleshooting.ViewModels
             OutputConnections.CollectionChanged += (o, e) => OnOutputConnectionPositionChanged();
         }
 
-     
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

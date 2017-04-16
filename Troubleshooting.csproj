@@ -39,18 +39,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MugenMvvmToolkit, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MugenMvvmToolkit.6.0.0\lib\net45\MugenMvvmToolkit.dll</HintPath>
-    </Reference>
-    <Reference Include="MugenMvvmToolkit.Binding, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MugenMvvmToolkit.Binding.6.0.0\lib\net45\MugenMvvmToolkit.Binding.dll</HintPath>
-    </Reference>
-    <Reference Include="MugenMvvmToolkit.WPF, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MugenMvvmToolkit.WPF.6.0.0\lib\net45\MugenMvvmToolkit.WPF.dll</HintPath>
-    </Reference>
-    <Reference Include="MugenMvvmToolkit.WPF.Binding, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MugenMvvmToolkit.Binding.6.0.0\lib\net45\MugenMvvmToolkit.WPF.Binding.dll</HintPath>
-    </Reference>
     <Reference Include="PropertyChanged, Version=1.52.1.0, Culture=neutral, PublicKeyToken=ee3ee20bcf148ddd, processorArchitecture=MSIL">
       <HintPath>..\packages\PropertyChanged.Fody.1.52.1\lib\netstandard10\PropertyChanged.dll</HintPath>
       <Private>False</Private>
@@ -89,12 +77,17 @@
     <Compile Include="Helper.cs" />
     <Compile Include="MyTable.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Serializer.cs" />
     <Compile Include="ViewModels\ConnectionViewModel.cs" />
+    <Compile Include="ViewModels\DependencyTableViewModel.cs" />
     <Compile Include="ViewModels\DiagramEditorViewModel.cs" />
     <Compile Include="ViewModels\NodeViewModel.cs" />
     <Compile Include="ViewModels\SelectRectangleViewModel.cs" />
     <Compile Include="Views\ConnectionView.xaml.cs">
       <DependentUpon>ConnectionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DependencyTableView.xaml.cs">
+      <DependentUpon>DependencyTableView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DiagramEditorView.xaml.cs">
       <DependentUpon>DiagramEditorView.xaml</DependentUpon>
@@ -115,6 +108,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\ConnectionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DependencyTableView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

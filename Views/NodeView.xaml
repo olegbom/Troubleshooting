@@ -13,6 +13,7 @@
              MinWidth="{Binding MinWidth}" d:DesignWidth="40" 
              Width="{Binding Width}" 
              Height="{Binding Height}">
+
     
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
@@ -49,27 +50,37 @@
                 MouseDown="BorderMove_OnMouseDown">
             <Grid>
                 <troubleshooting:EditableTextBlock x:Name="Label"
-                                                   Text="{Binding Text}" Margin="10"
-                                                   FontFamily="Times New Roman"
-                                                   FontSize="16"
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   SnapsToDevicePixels="True" Cursor="IBeam" />
+                        Text="{Binding Text, Mode=TwoWay}" Margin="10"
+                        FontFamily="Times New Roman"
+                        FontSize="16"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        SnapsToDevicePixels="True" Cursor="IBeam" />
 
             </Grid>
         </Border>
+
         <Line Grid.Column="{Binding LineConnectorGridColumn}" 
               Grid.Row="{Binding LineConnectorGridRow}" 
               StrokeThickness="2" 
               Stroke="Black"
-              X1="{DataBinding 'IsLineConnectorRotate? 1: 0'}" 
-              Y1="{DataBinding 'IsLineConnectorRotate? 0: 1'}" 
-              X2="{DataBinding 'IsLineConnectorRotate? 1: 10'}" 
-              Y2="{DataBinding 'IsLineConnectorRotate? 10: 1'}" 
+              X1="{Binding OutputLineX1}" 
+              Y1="{Binding OutputLineY1}" 
+              X2="{Binding OutputLineX2}" 
+              Y2="{Binding OutputLineY2}" 
               Margin="-1,0,0,0"
               HorizontalAlignment="Center" 
               VerticalAlignment="Center" 
               SnapsToDevicePixels="True"/>
+        <TextBlock Grid.Column="{Binding LineConnectorGridColumn}" 
+                   Grid.Row="{Binding LineConnectorGridRow}" 
+                   Text="{Binding SignalText, Mode=OneWay}" 
+                   FontFamily="Times New Roman"
+                   TextAlignment="Center"
+                   HorizontalAlignment="Center" 
+                   VerticalAlignment="Center" 
+                   FontSize="14"/>
+
         <Grid Grid.ColumnSpan="3" Grid.RowSpan="3" Visibility="{Binding Path = EditMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
             <Rectangle StrokeThickness="2" Stroke="Green" SnapsToDevicePixels="True" Margin="-3"
                        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" StrokeDashArray="1 1" />
@@ -81,8 +92,18 @@
                         HorizontalAlignment="{Binding ConnectorOutHorizontalAlignment}" Cursor="Cross"
                         MouseDown="ConnectorOut_OnMouseDown" />
         </Grid>
-        
-        
+        <Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3"
+                   StrokeThickness="4" Stroke="Blue" StrokeDashArray="1 1 0"
+                   SnapsToDevicePixels="True" Margin="-3"
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                   Visibility="{Binding Path = ParentMode, Mode=OneWay, Converter={StaticResource BoolToVis}}"/>
+
+        <Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3"
+                   StrokeThickness="4" Stroke="Red" StrokeDashArray="0 1 1"
+                   SnapsToDevicePixels="True" Margin="-3"
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                   Visibility="{Binding Path = ChildMode, Mode=OneWay, Converter={StaticResource BoolToVis}}"/>
+
     </Grid>
 </UserControl>
 

@@ -8,6 +8,7 @@ using Troubleshooting.Annotations;
 
 namespace Troubleshooting.ViewModels
 {
+    [Serializable]
     [ImplementPropertyChanged]
     public class SelectRectangleViewModel: INotifyPropertyChanged
     {
