@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Data;
 using PropertyChanged;
 using Troubleshooting.Annotations;
+using Troubleshooting.Models;
 
 
 namespace Troubleshooting.ViewModels
@@ -38,13 +40,10 @@ namespace Troubleshooting.ViewModels
 
         public  CompositeCollection DiagramItems { get; } = new CompositeCollection();
 
-        public Visibility InputConnectorVisiblity { get; set; }
+
         
         public DiagramEditorViewModel()
         {
-            
-
-
             DiagramItems.Add(new CollectionContainer() {Collection = Nodes});
             DiagramItems.Add(new CollectionContainer() {Collection = Connections});
             DiagramItems.Add(SelectRectangle);
@@ -76,30 +75,87 @@ namespace Troubleshooting.ViewModels
                 }
             };
 
-            Connections.CollectionChanged += (o, e) =>
-            {
-                var oldItems = e.OldItems;
-                if(oldItems != null)
-                    foreach (ConnectionViewModel connection in oldItems)
-                    {
-                        connection.SourceNode.OutputConnections.Remove(connection);
-                        connection.SinkNode.InputConnections.Remove(connection);
-                    }    
-            };
-
             Nodes.Add(new NodeViewModel() { Text = "1", X = 10, Y = 10 });
             Nodes.Add(new NodeViewModel() { Text = "2", X = 10, Y = 70 });
             Nodes.Add(new NodeViewModel() { Text = "3", X = 10, Y = 130 });
         }
 
-        public FunctionalDiagram GenerateFuctionalDiagram()
+        public DiagramEditorViewModel(DiagramEditorModel model)
         {
-            var result = new FunctionalDiagram(Nodes.Count);
-            foreach (var connection in Connections)
+            foreach (var nodeM in model.Nodes)
             {
-                var a = Nodes.IndexOf(connection.SourceNode)+1;
-                var b = Nodes.IndexOf(connection.SinkNode)+1;
-                result.Connect(a, b);
+                var nodeVm = new NodeViewModel(nodeM);
+                Nodes.Add(nodeVm);
+            }
+            foreach (var connectionM in model.Connections)
+            {
+                var indexSource = model.Nodes.IndexOf(connectionM.SourceNode);
+                var indexSink = model.Nodes.IndexOf(connectionM.SinkNode);
+
+                var connectionVm = new ConnectionViewModel(Nodes[indexSource])
+                    { SinkNode = Nodes[indexSink]};
+                Connections.Add(connectionVm);
+            }
+
+            DiagramItems.Add(new CollectionContainer() { Collection = Nodes });
+            DiagramItems.Add(new CollectionContainer() { Collection = Connections });
+            DiagramItems.Add(SelectRectangle);
+
+            Nodes.CollectionChanged += (o, e) =>
+            {
+                var oldItems = e.OldItems;
+                if (oldItems != null)
+                    foreach (NodeViewModel node in oldItems)
+                    {
+                        for (var i = node.InputConnections.Count - 1; i >= 0; i--)
+                        {
+                            var connection = node.InputConnections[i];
+                            Connections.Remove(connection);
+                        }
+
+                        node.InputConnections.Clear();
+                        for (var i = node.OutputConnections.Count - 1; i >= 0; i--)
+                        {
+                            var connection = node.OutputConnections[i];
+                            Connections.Remove(connection);
+                        }
+
+                        node.OutputConnections.Clear();
+                    }
+                for (var i = 0; i < Nodes.Count; i++)
+                {
+                    Nodes[i].Zindex = i;
+                }
+            };
+
+            for (var i = 0; i < Nodes.Count; i++)
+            {
+                Nodes[i].Zindex = i;
+            }
+        }
+
+
+        public DiagramEditorModel ConvertToModel()
+        {
+            var result = new DiagramEditorModel()
+            {
+                Nodes = Nodes.Select(n => n.ConvertToModel()).ToList(),
+                Connections = Connections.Select(c => c.ConvertToModel()).ToList()
+            };
+
+            for (var i = 0; i < Nodes.Count; i++)
+            {
+                var nodeVm = Nodes[i]; 
+                foreach (var connVm in nodeVm.InputConnections)
+                {
+                    var indexC = Connections.IndexOf(connVm);
+                    result.Connections[indexC].SinkNode = result.Nodes[i];
+                }
+                foreach (var connVm in nodeVm.OutputConnections)
+                {
+                    var indexC = Connections.IndexOf(connVm);
+                    result.Connections[indexC].SourceNode = result.Nodes[i];
+                }
             }
             return result;
         }

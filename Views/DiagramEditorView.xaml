@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Troubleshooting.Views"
         xmlns:vm="clr-namespace:Troubleshooting.ViewModels"
         mc:Ignorable="d"
-        Title="DiagramEditorView" Height="300" Width="300">
+        Title="DiagramEditorView" Height="500" Width="500">
     <Window.DataContext>
         <vm:DiagramEditorViewModel/>
     </Window.DataContext>
@@ -26,15 +26,15 @@
         
         <Menu Grid.Row="0" Grid.ColumnSpan="2" >
             <MenuItem Header="Файл">
+                <MenuItem Header="Новый" Click="MenuNew_OnClick"/>
                 <MenuItem Header="Открыть.." Click="MenuOpen_OnClick"/>
                 <MenuItem Header="Сохранить как" Click="MenuSave_OnClick"/>
                 <Separator/>
                 <MenuItem Header="Выход" Click="MenuClose_OnClick"/>
             </MenuItem>
             <MenuItem Header="Добавить новый блок" Click="MenuItemNewBlock_OnClick" ></MenuItem>
-            <MenuItem Header="Завершить" Click="MenuItemEnd_OnClick"></MenuItem>
-            <MenuItem Header="Печать" Click="MenuPrint_OnClick"></MenuItem>
-            <MenuItem Header="Таблица Зависимостей" Click="MenuDependencyTable_OnClick"></MenuItem>
+            <!--<MenuItem Header="Печать" Click="MenuPrint_OnClick"></MenuItem>-->
+            <MenuItem Header="Таблица Зависимостей" IsEnabled ="{Binding Path=IsEnabled, ElementName=DiagramGrid,Mode=OneWay}"  Click="MenuDependencyTable_OnClick"></MenuItem>
         </Menu>
 
 
@@ -42,6 +42,8 @@
             <Grid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Копировать"  Click="ContextCopy_OnClick"/>
+                    <MenuItem Header="Вставить" Click="ContextPaste_OnClick"></MenuItem>
+                    <MenuItem Header="Добавить новый блок" Click="ContextNewNode_OnClick"></MenuItem>
                 </ContextMenu>
             </Grid.ContextMenu>
             <ItemsControl ItemsSource="{Binding DiagramItems}">
@@ -59,7 +61,9 @@
                 </ItemsControl.ItemContainerStyle>
                 <ItemsControl.Resources>
                      <DataTemplate DataType="{x:Type vm:ConnectionViewModel}">
-                        <local:ConnectionView DataContext="{Binding}" MouseDown="Connection_OnMouseDown" MouseUp="Connection_OnMouseUp"/>
+                        <local:ConnectionView DataContext="{Binding}" 
+                                              MouseDown="Connection_OnMouseDown" MouseUp="Connection_OnMouseUp" 
+                                              MouseEnter="Connection_OnMouseEnter" MouseLeave="Connection_OnMouseLeave"/>
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:NodeViewModel}">
                         <local:NodeView DataContext="{Binding}"

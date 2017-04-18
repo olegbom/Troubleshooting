@@ -31,6 +31,8 @@ namespace Troubleshooting.ViewModels
         public int[] Zeros { get; }
         public int[] W { get; }
 
+        public string TableDescription { get; set; }
+
         public DependencyTableViewModel(DiagramEditorViewModel diagramEditorVm)
         {
 

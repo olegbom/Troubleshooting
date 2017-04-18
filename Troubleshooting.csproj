@@ -67,17 +67,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Block.cs" />
     <Compile Include="Converters\BoolToBrushConverter.cs" />
     <Compile Include="Converters\ConnectionPositionMultiConverter.cs" />
     <Compile Include="DoubleToVisibilityConverter.cs" />
     <Compile Include="EditableTextBlock.cs" />
     <Compile Include="EditableTextBlockAdorner.cs" />
-    <Compile Include="FunctionalDiagram.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="MyTable.cs" />
+    <Compile Include="Models\ConnectionModel.cs" />
+    <Compile Include="Models\DiagramEditorModel.cs" />
+    <Compile Include="Models\NodeModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Serializer.cs" />
+    <Compile Include="SizeObserver.cs" />
     <Compile Include="ViewModels\ConnectionViewModel.cs" />
     <Compile Include="ViewModels\DependencyTableViewModel.cs" />
     <Compile Include="ViewModels\DiagramEditorViewModel.cs" />
@@ -95,16 +96,8 @@
     <Compile Include="Views\NodeView.xaml.cs">
       <DependentUpon>NodeView.xaml</DependentUpon>
     </Compile>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\ConnectionView.xaml">

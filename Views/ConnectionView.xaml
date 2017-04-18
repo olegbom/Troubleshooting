@@ -9,28 +9,39 @@
              d:DesignHeight="300" d:DesignWidth="300" IsHitTestVisible="{Binding IsHitTestVisible}">
     
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <conv:BoolToBrushConverter FalseBrush="Black" TrueBrush="DodgerBlue" x:Key="BoolToBrushConverter"></conv:BoolToBrushConverter>
+        <PathGeometry x:Key="PathGeometry">
+            <PathGeometry.Figures>
+                <PathFigure StartPoint="0,0">
+                    <BezierSegment Point1="{Binding LineSegment1}"
+                                   Point2="{Binding LineSegment2}"
+                                   Point3="{Binding BezieEndPoint}">
+                    </BezierSegment>
+                </PathFigure>
+                <PathFigure StartPoint="{Binding ArrowTopPoint}">
+                    <LineSegment  Point="{Binding LocalEndPoint}"/>
+                    <LineSegment  Point="{Binding ArrowBottomPoint}"/>
+                </PathFigure>
+                <PathFigure StartPoint="{Binding BezieEndPoint}">
+                    <LineSegment  Point="{Binding LocalEndPoint}"/>
+                </PathFigure>
+            </PathGeometry.Figures>
+        </PathGeometry>
     </UserControl.Resources>
-    <Path StrokeThickness="2" Stroke="{Binding SelectMode, Converter={StaticResource BoolToBrushConverter}}"  SnapsToDevicePixels="True">
-        <Path.Data>
-            <PathGeometry>
-                <PathGeometry.Figures>
-                    <PathFigure StartPoint="0,0">
-                        <BezierSegment Point1="{Binding LineSegment1}"
-                                       Point2="{Binding LineSegment2}"
-                                       Point3="{Binding BezieEndPoint}">   
-                        </BezierSegment>
-                    </PathFigure>
-                    <PathFigure StartPoint="{Binding ArrowTopPoint}">
-                        <LineSegment  Point="{Binding LocalEndPoint}"/>
-                        <LineSegment  Point="{Binding ArrowBottomPoint}"/>
-                    </PathFigure>
-                    <PathFigure StartPoint="{Binding BezieEndPoint}">
-                        <LineSegment  Point="{Binding LocalEndPoint}"/>
-                    </PathFigure>
-                </PathGeometry.Figures>
-            </PathGeometry>
-        </Path.Data>
-    </Path>
+    <Grid>
+        <Path StrokeThickness="4" Stroke="DodgerBlue"  SnapsToDevicePixels="True" Data="{StaticResource PathGeometry}" 
+              Visibility="{Binding HitMode, Converter={StaticResource BoolToVis}}">
+            <Path.Effect>
+                <BlurEffect Radius="4" KernelType="Gaussian"></BlurEffect>
+            </Path.Effect>
+        </Path>
+        <Path StrokeThickness="2" Stroke="{Binding SelectMode, Converter={StaticResource BoolToBrushConverter}}"
+              SnapsToDevicePixels="True" Data="{StaticResource PathGeometry}">
+            
+        </Path>
+        
+    </Grid>
+    
 </UserControl>
 

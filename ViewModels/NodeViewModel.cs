@@ -1,11 +1,13 @@
 ﻿using PropertyChanged;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using Troubleshooting.Annotations;
+using Troubleshooting.Models;
 
 namespace Troubleshooting.ViewModels
 {
@@ -33,6 +35,8 @@ namespace Troubleshooting.ViewModels
         public bool InvSelectMode => !SelectMode;
         public bool IntersectsMode { get; set; }
         
+        public double ZindexWidth { get; set; }
+        public double ZindexHeight { get; set; }
 
         public bool IsWork { get; set; }
 
@@ -47,7 +51,7 @@ namespace Troubleshooting.ViewModels
 
         public int? Zindex { get; set; } = null;
 
-        public string SignalText => $"Z{Zindex}";
+        public string SignalText => $"Z{Zindex+1}";
 
         public Point OldPosition { get; set; }
 
@@ -146,6 +150,7 @@ namespace Troubleshooting.ViewModels
         }
 
         private int _height;
+
         public int Height
         {
             get => _height;
@@ -166,9 +171,9 @@ namespace Troubleshooting.ViewModels
                 switch (OutOrientation)
                 {
                     case Orientation.Bottom: return Width;
-                    case Orientation.Right: return Width-10;
+                    case Orientation.Right: return Width-(int) ZindexWidth;
                     case Orientation.Top: return Width;
-                    case Orientation.Left: return Width-10;
+                    case Orientation.Left: return Width-(int) ZindexWidth;
                     default: return Width;
                 }
             }
@@ -180,9 +185,9 @@ namespace Troubleshooting.ViewModels
             {
                 switch (OutOrientation)
                 {
-                    case Orientation.Bottom: return Height-10;
+                    case Orientation.Bottom: return Height- (int)ZindexHeight;
                     case Orientation.Right: return Height;
-                    case Orientation.Top: return Height-10;
+                    case Orientation.Top: return Height- (int)ZindexHeight;
                     case Orientation.Left: return Height;
                     default: return Height;
                 }
@@ -197,8 +202,8 @@ namespace Troubleshooting.ViewModels
                 var result = new Point[InputConnections.Count];
                 var height = BorderHeight;
                 var width = BorderWidth;
-                var deltaX = (OutOrientation == Orientation.Left) ? 10 : 0;
-                var deltaY = (OutOrientation == Orientation.Top) ? 10 : 0;
+                var deltaX = (OutOrientation == Orientation.Left) ? ZindexWidth : 0;
+                var deltaY = (OutOrientation == Orientation.Top) ? ZindexHeight : 0;
                 foreach (var gr in grouped)
                 {
                     
@@ -384,9 +389,23 @@ namespace Troubleshooting.ViewModels
 
         public int OutputLineX1 => IsLineConnectorRotate ? 1 : 0;
         public int OutputLineY1 => IsLineConnectorRotate ? 0 : 1;
-        public int OutputLineX2 => IsLineConnectorRotate ? 1 : 10;
-        public int OutputLineY2 => IsLineConnectorRotate ? 10 : 1;
+        public int OutputLineX2 => IsLineConnectorRotate ? 1 : (int)ZindexWidth;
+        public int OutputLineY2 => IsLineConnectorRotate ? (int)ZindexHeight : 1;
 
+        public Thickness ZindexMargin
+        {
+            get
+            {
+                switch (OutOrientation)
+                {
+                    case Orientation.Bottom: return new Thickness(0,0,ZindexWidth,0);
+                    case Orientation.Right: return new Thickness(0,0,0,ZindexHeight);
+                    case Orientation.Top: return new Thickness(0, 0, ZindexWidth, 0);
+                    case Orientation.Left: return new Thickness(0, 0, 0, ZindexHeight);
+                    default: return new Thickness(0, 0, 0, ZindexHeight);
+                }
+            }
+        }
 
 
         public Rect Rect() => new Rect(Position, new Size(Width, Height));
@@ -400,19 +419,51 @@ namespace Troubleshooting.ViewModels
         public bool IsThisAChild(NodeViewModel node)
         {
             if (OutputConnections.Any(c => c.SinkNode == node)) return true;
-            return OutputConnections.Any(c => c.SinkNode.IsThisAChild(node));
+            return OutputConnections.Any(c => c.SinkNode?.IsThisAChild(node)??false);
         }
 
+        
 
         public NodeViewModel()
         {
-            
-            Width = 40;
+            Width = 50;
             Height = 50;
-            MinWidth = 40;
-            MinHeight = 40;
+            MinWidth = 50;
+            MinHeight = 50;
             InputConnections.CollectionChanged += (o, e) => OnInputConnectionsPositionsChanged();
             OutputConnections.CollectionChanged += (o, e) => OnOutputConnectionPositionChanged();
+        }
+
+        public NodeViewModel(NodeModel node)
+        {
+            Text = node.Text;
+            X = node.X;
+            Y = node.Y;
+            Width = node.Width;
+            Height = node.Height;
+            MinWidth = node.MinWidth;
+            MinHeight = node.MinHeight;
+            OutOrientation = node.OutOrientation;
+            
+            InputConnections.CollectionChanged += (o, e) => OnInputConnectionsPositionsChanged();
+            OutputConnections.CollectionChanged += (o, e) => OnOutputConnectionPositionChanged();
+
+        }
+
+        public NodeModel ConvertToModel()
+        {
+            var result = new NodeModel()
+            {
+                Text = Text,
+                X = X,
+                Y = Y,
+                Width = Width,
+                Height = Height,
+                MinWidth = MinWidth,
+                MinHeight = MinHeight,
+                OutOrientation = OutOrientation,
+            };
+            return result;
         }
 
 
@@ -423,5 +474,7 @@ namespace Troubleshooting.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+       
     }
 }
