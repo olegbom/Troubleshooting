@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
+using Troubleshooting.Models;
 using Troubleshooting.ViewModels;
 
 
@@ -36,6 +38,7 @@ namespace Troubleshooting.Views
             DiagramGrid.MouseDown += (o, e) =>
             {
                 origContentMouseDownPoint = e.GetPosition(DiagramGrid);
+                if (e.ChangedButton != MouseButton.Left) return;
                 mouseHandlingMode = MouseHandlingMode.SelectRect;
                 ViewModel.SelectRectangle.Visible = true;
                 ViewModel.SelectRectangle.X = origContentMouseDownPoint.X;
@@ -51,6 +54,14 @@ namespace Troubleshooting.Views
                     for (var i = 0; i < ViewModel.Nodes.Count; i++)
                     {
                         if (ViewModel.Nodes[i].SelectMode) ViewModel.Nodes.RemoveAt(i--);
+                    }
+                    for (var i = 0; i < ViewModel.Connections.Count; i++)
+                    {
+                        if (ViewModel.Connections[i].SelectMode)
+                        {
+                            ViewModel.Connections[i].Dispose();
+                            ViewModel.Connections.RemoveAt(i--);
+                        }
                     }
                 }
             };
@@ -151,13 +162,20 @@ namespace Troubleshooting.Views
                         break;
                     case MouseHandlingMode.ConnectionRoute:
                         mouseHandlingMode = MouseHandlingMode.None;
+                        ViewModel.RoutedConnectionViewModel.Dispose();
                         ViewModel.RoutedConnectionViewModel = null;
                         break;
                     case MouseHandlingMode.SelectRect:
                         mouseHandlingMode = MouseHandlingMode.None;
                         if((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
+                        {
                             foreach (var n in ViewModel.Nodes)
                                 n.SelectMode = false;
+                            foreach (var connection in ViewModel.Connections)
+                            {
+                                connection.SelectMode = false;
+                            }
+                        }
                             
 
                         Rect selectRect = ViewModel.SelectRectangle.Rect();
@@ -172,6 +190,7 @@ namespace Troubleshooting.Views
                     case MouseHandlingMode.OutConnectorRotate:
                         mouseHandlingMode = MouseHandlingMode.None;
                         RotateNodeView.ReleaseMouseCapture();
+                        e.Handled = true;
                         break;
                 }
             };
@@ -188,6 +207,8 @@ namespace Troubleshooting.Views
         {
            // DiagramGrid.Focus();
             //Keyboard.Focus(DiagramGrid);
+            if (e.LeftButton != MouseButtonState.Pressed) return;
+
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
                 return;
             
@@ -213,6 +234,8 @@ namespace Troubleshooting.Views
 
         private void NodeView_OnRectSizeMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (e.LeftButton != MouseButtonState.Pressed) return;
+
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
                 return;
 
@@ -263,8 +286,9 @@ namespace Troubleshooting.Views
         private void MenuItemNewBlock_OnClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel nodeViewModel = new NodeViewModel()
-                {Text = "Название", X = 50, Y = 50};
+                { X = 50, Y = 50};
             ViewModel.Nodes.Add(nodeViewModel);
+            nodeViewModel.Text = (nodeViewModel.Zindex+1).ToString();
         }
 
 
@@ -288,8 +312,7 @@ namespace Troubleshooting.Views
 
         private void MenuItemEnd_OnClick(object sender, RoutedEventArgs e)
         {
-            DialogResult = true;
-            Close();
+            
         }
 
         private void NodeView_OnMouseUp(object sender, MouseButtonEventArgs e)
@@ -299,10 +322,10 @@ namespace Troubleshooting.Views
             var nodeSource = ViewModel.RoutedConnectionViewModel.SourceNode;
             if (sender is NodeView node 
                 && nodeSource != node.ViewModel
-                && !node.ViewModel.IsThisAChild(nodeSource))
+                && !node.ViewModel.IsThisAChild(nodeSource)
+                && nodeSource.OutputConnections.All(c => c.SinkNode != node.ViewModel))
             {
                 ViewModel.RoutedConnectionViewModel.IsHitTestVisible = true;
-                node.ViewModel.InputConnections.Add(ViewModel.RoutedConnectionViewModel);
                 mouseHandlingMode = MouseHandlingMode.None;
                 ViewModel.RoutedConnectionViewModel.SinkNode = node.ViewModel;
                 ViewModel.Connections.Add(ViewModel.RoutedConnectionViewModel);
@@ -330,6 +353,8 @@ namespace Troubleshooting.Views
                 return;
             mouseMoveConnectionBetweenDownAndUp = false;
             clickedConnectionView = (ConnectionView) sender;
+            clickedConnectionView.ViewModel.SelectMode = !clickedConnectionView.ViewModel.SelectMode;
+            e.Handled = true;
         }
 
         private void Connection_OnMouseUp(object sender, MouseButtonEventArgs e)
@@ -341,8 +366,28 @@ namespace Troubleshooting.Views
 
             if (Equals((ConnectionView) sender, clickedConnectionView) && !mouseMoveConnectionBetweenDownAndUp)
             {
-                clickedConnectionView.ViewModel.SelectMode = !clickedConnectionView.ViewModel.SelectMode;
                 mouseMoveConnectionBetweenDownAndUp = false;
+            }
+        }
+
+        private void Connection_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            if (mouseHandlingMode != MouseHandlingMode.None)
+                return;
+            if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
+                return;
+
+            if (sender is ConnectionView connection)
+            {
+                connection.ViewModel.HitMode = true;
+            }
+
+        }
+        private void Connection_OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            if (sender is ConnectionView connection)
+            {
+                connection.ViewModel.HitMode = false;
             }
         }
 
@@ -350,15 +395,83 @@ namespace Troubleshooting.Views
         {
             var dependencyTableViewModel = new DependencyTableViewModel(ViewModel);
             var dependencyTableView = new DependencyTableView(dependencyTableViewModel);
+            DiagramGrid.IsEnabled = false;
+
+            dependencyTableView.Closed += (o, args) =>
+            {
+                DiagramGrid.IsEnabled = true;
+            };
             dependencyTableView.Show();
         }
 
-        public IEnumerable<NodeViewModel> CopiedNodes;
 
+        private Point copyMousePoint;
         private void ContextCopy_OnClick(object sender, RoutedEventArgs e)
         {
-            CopiedNodes = ViewModel.Nodes.Where(x => x.SelectMode);
+            var selectedNodes = ViewModel.Nodes.Where(x => x.SelectMode).ToList();
+           var selectedNodesModels = selectedNodes.Select(x => x.ConvertToModel()).ToList();
+            var selectedConnections =
+                ViewModel.Connections
+                .Where(c => selectedNodes.Contains(c.SourceNode) &&
+                                                 selectedNodes.Contains(c.SinkNode))
+                .Select(c => new ConnectionModel
+                {
+                    SourceNode = selectedNodesModels[selectedNodes.IndexOf(c.SourceNode)],
+                    SinkNode = selectedNodesModels[selectedNodes.IndexOf(c.SinkNode)]
+                }).ToList();
+            var diagramEditorModel = new DiagramEditorModel
+            {
+                Nodes = selectedNodesModels,
+                Connections = selectedConnections
+            };
+            copyMousePoint = origContentMouseDownPoint;
+            DataObject dataObject = new DataObject();
+            dataObject.SetData(diagramEditorModel);
 
+            Clipboard.SetDataObject(dataObject, false);
+            
+        }
+
+        private void ContextPaste_OnClick(object sender, RoutedEventArgs e)
+        {
+            DataObject dataObject = (DataObject) Clipboard.GetDataObject();
+            if (!(dataObject?.GetDataPresent(typeof(DiagramEditorModel)) ?? false)) return;
+
+            if (dataObject.GetData(typeof(DiagramEditorModel)) is DiagramEditorModel model)
+            {
+                var pasteMousePoint = origContentMouseDownPoint;
+                var delta = pasteMousePoint - copyMousePoint;
+
+                var nodeVms = model.Nodes.Select(n => new NodeViewModel(n)).ToArray();
+
+                foreach (var nodeVm in nodeVms)
+                {
+                    nodeVm.Position += delta;
+                    ViewModel.Nodes.Add(nodeVm);
+                }
+                foreach (var connection in model.Connections)
+                {
+                    var indexSource = model.Nodes.IndexOf(connection.SourceNode);
+                    var indexSink = model.Nodes.IndexOf(connection.SinkNode);
+                    var connectionVm = new ConnectionViewModel(nodeVms[indexSource])
+                        { SinkNode = nodeVms[indexSink] };
+                    ViewModel.Connections.Add(connectionVm);
+                }
+            }
+        }
+
+        private void ContextNewNode_OnClick(object sender, RoutedEventArgs e)
+        {
+            var mousePoint = origContentMouseDownPoint;
+            var node = new NodeViewModel {Position = mousePoint};
+            ViewModel.Nodes.Add(node);
+            node.Text = (node.Zindex+1).ToString();
+        }
+
+        private void MenuNew_OnClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Nodes.Clear();
+            ViewModel.Connections.Clear();
         }
 
         private void MenuOpen_OnClick(object sender, RoutedEventArgs e)
@@ -371,7 +484,16 @@ namespace Troubleshooting.Views
             };
             if (openFileDialog.ShowDialog() == true)
             {
-                DataContext = Serializer.LoadFromBinnary<DiagramEditorViewModel>(openFileDialog.FileName);
+                try
+                {
+                    var model = Serializer.LoadFromBinnary<DiagramEditorModel>(openFileDialog.FileName);
+                    DataContext = new DiagramEditorViewModel(model);
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show(this, exception.ToString());
+                    throw;
+                }
             }
 
         }
@@ -386,7 +508,7 @@ namespace Troubleshooting.Views
             };
             if (saveFileDialog.ShowDialog() == true)
             {
-                Serializer.SaveToBinnary(saveFileDialog.FileName, ViewModel.Nodes[0]);
+                Serializer.SaveToBinnary(saveFileDialog.FileName, ViewModel.ConvertToModel());
             }
         }
 
@@ -394,5 +516,8 @@ namespace Troubleshooting.Views
         {
             Close();
         }
+
+
+      
     }
 }

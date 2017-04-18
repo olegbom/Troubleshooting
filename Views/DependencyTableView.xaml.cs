@@ -41,13 +41,25 @@ namespace Troubleshooting.Views
         public Button LabelGrid(DependencyTableViewModel myTable)
         {
 
+            var minW = myTable.W.IndexOfMin();
             Button button = new Button
             {
-                Content = $"Z{myTable.Nodes[myTable.W.IndexOfMin()].Zindex + 1}",
+                Content = $"Z{myTable.Nodes[minW].Zindex + 1}",
                 FontSize = 14,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             };
+            button.MouseEnter += (o, e) =>
+            {
+                myTable.Nodes[minW].ParentMode = true;
+                myTable.Nodes[minW].ChildMode = true;
+            };
+            button.MouseLeave += (o, e) =>
+            {
+                myTable.Nodes[minW].ParentMode = false;
+                myTable.Nodes[minW].ChildMode = false;
+            };
+
             if (myTable.Count > 1)
             {
                 button.Click += (o, e) =>
@@ -55,10 +67,7 @@ namespace Troubleshooting.Views
                     CreateDependencyTable(myTable);
                 };
             }
-            else
-            {
-                button.IsEnabled = false;
-            }
+            
 
             return button;
         }
@@ -111,12 +120,24 @@ namespace Troubleshooting.Views
             DependencyTable.AddChildren(new TextBlock { Text = "" }, 0, 1);
             for (int i = 0; i < vm.Count; i++)
             {
-                DependencyTable.AddChildren(
-                    new TextBlock
-                    {
-                        Text = $"{vm.Nodes[i].Zindex+1}",
-                        TextAlignment = TextAlignment.Center
-                    }, i + 1, 1);
+                
+                var zindexTextBlock = new TextBlock
+                {
+                    Text = $"{vm.Nodes[i].Zindex + 1}",
+                    TextAlignment = TextAlignment.Center
+                };
+                int zindexI = i;
+                zindexTextBlock.MouseEnter += (o, e) =>
+                {
+                    vm.Nodes[zindexI].ParentMode = true;
+                    vm.Nodes[zindexI].ChildMode = true;
+                };
+                zindexTextBlock.MouseLeave += (o, e) =>
+                {
+                    vm.Nodes[zindexI].ParentMode = false;
+                    vm.Nodes[zindexI].ChildMode = false;
+                };
+                DependencyTable.AddChildren(zindexTextBlock, i + 1, 1);
             }
             DependencyTable.AddChildren(new TextBlock
             {
@@ -134,11 +155,27 @@ namespace Troubleshooting.Views
             for (int i = 0; i < vm.Count; i++)
             {
                 var color = i == wIntexOfMin ? Color.FromArgb(255, 173, 216, 230) : default(Color);
-                DependencyTable.AddChildren(new TextBlock
+
+                var zindexTextBlock = new TextBlock
                 {
-                    Text = $"Z{vm.Nodes[i].Zindex}",
+                    Text = $"Z{vm.Nodes[i].Zindex + 1}",
                     Margin = new Thickness(3, 0, 0, 0)
-                }, 0, i + 2, 1, 1, color);
+                };
+                int zindexI = i;
+                zindexTextBlock.MouseEnter += (o, e) =>
+                {
+                    vm.Nodes[zindexI].ParentMode = true;
+                    vm.Nodes[zindexI].ChildMode = true;
+                };
+                zindexTextBlock.MouseLeave += (o, e) =>
+                {
+                    vm.Nodes[zindexI].ParentMode = false;
+                    vm.Nodes[zindexI].ChildMode = false;
+                };
+
+                DependencyTable.AddChildren(zindexTextBlock, 0, i + 2, 1, 1, color);
+
+
                 for (int j = 0; j < vm.Count; j++)
                 {
                     var dependTextBlock = new TextBlock

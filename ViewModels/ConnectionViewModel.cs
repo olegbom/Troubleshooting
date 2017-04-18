@@ -4,14 +4,19 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using PropertyChanged;
 using Troubleshooting.Annotations;
+using Troubleshooting.Models;
 
 
 namespace Troubleshooting.ViewModels
 {
     [Serializable]
     [ImplementPropertyChanged]
-    public class ConnectionViewModel: INotifyPropertyChanged
+    public class ConnectionViewModel: INotifyPropertyChanged, IDisposable
     {
+        public bool SelectMode { get; set; }
+        public bool HitMode { get; set; }
+        public bool IsHitTestVisible { get; set; }
+
 
         public NodeViewModel SourceNode { get; }
 
@@ -23,7 +28,9 @@ namespace Troubleshooting.ViewModels
             set
             {
                 if (_sinkNode == value) return;
+                _sinkNode?.InputConnections.Remove(this);
                 _sinkNode = value;
+                _sinkNode.InputConnections.Add(this);
                 UpdateEndConnectionOrientation();
                 OnPropertyChanged();
                 _sinkNode.OnInputConnectionsPositionsChanged();
@@ -159,8 +166,7 @@ namespace Troubleshooting.ViewModels
         public double X => StartPoint.X;
         public double Y => StartPoint.Y;
        
-        public bool SelectMode { get; set; }
-        public bool IsHitTestVisible { get; set; }
+
 
 
 
@@ -172,6 +178,11 @@ namespace Troubleshooting.ViewModels
             StartConnectionOrientation = source.OutOrientation;
         }
 
+        public ConnectionModel ConvertToModel()
+        {
+            return new ConnectionModel();
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -180,5 +191,14 @@ namespace Troubleshooting.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public void Dispose()
+        {
+            SourceNode.OutputConnections.Remove(this);
+            SinkNode?.InputConnections.Remove(this);
+
+        }
+
+       
     }
 }
