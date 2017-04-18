@@ -23,31 +23,41 @@ namespace Troubleshooting.Views
             for (int i = 0, count = viewModel.TableDepth+1; i < count; i++)
                 DependencyDiagram.RowDefinitions.Add(new RowDefinition());
 
-            AddMyTableToMetaGrid(viewModel,0,0);
+            AddMyTableToMetaGrid(viewModel,0,0,2);
             CreateDependencyTable(ViewModel);
         }
 
-        public void AddMyTableToMetaGrid(DependencyTableViewModel myTable, int column, int row)
+        public void AddMyTableToMetaGrid(DependencyTableViewModel myTable, int column, int row, int isWork)
         {
-            Button button = LabelGrid(myTable);
-            DependencyDiagram.AddChildren(button, column, row, myTable.Count, 1);
+            Grid grid = LabelGrid(myTable, isWork);
+            DependencyDiagram.AddChildren(grid, column, row, myTable.Count, 1, default(Color), false);
+            
             if (myTable.Childrens.Any())
             {
-                AddMyTableToMetaGrid(myTable.Childrens[0], column, row + 1);
-                AddMyTableToMetaGrid(myTable.Childrens[1], column + myTable.Childrens[0].Count, row + 1);
+                AddMyTableToMetaGrid(myTable.Childrens[0], column, row + 1, 0);
+                AddMyTableToMetaGrid(myTable.Childrens[1], column + myTable.Childrens[0].Count, row + 1, 1);
             }
         }
 
-        public Button LabelGrid(DependencyTableViewModel myTable)
+        public Grid LabelGrid(DependencyTableViewModel myTable, int isWork)
         {
+            Grid myGrid = new Grid();
+
+            myGrid.RowDefinitions.Add(new RowDefinition(){Height = new GridLength(20)});
+            myGrid.RowDefinitions.Add(new RowDefinition(){Height = GridLength.Auto});
+
+            myGrid.ColumnDefinitions.Add(new ColumnDefinition(){Width = GridLength.Auto});
+            myGrid.ColumnDefinitions.Add(new ColumnDefinition(){Width = GridLength.Auto});
 
             var minW = myTable.W.IndexOfMin();
             Button button = new Button
             {
                 Content = $"Z{myTable.Nodes[minW].Zindex + 1}",
+                FontFamily = new FontFamily("Times New Roman"),
                 FontSize = 14,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
+                Margin= new Thickness(2,0,2,0),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
             };
             button.MouseEnter += (o, e) =>
             {
@@ -68,8 +78,52 @@ namespace Troubleshooting.Views
                 };
             }
             
+            myGrid.AddChildren(button,0,1,2,1,default(Color),false);
 
-            return button;
+            if (isWork < 2)
+            {
+                Path path = new Path
+                {
+                    Data = new PathGeometry(new[]
+                    {
+                        new PathFigure(new Point(0, 0), new[]
+                        {
+                            new LineSegment(new Point(0, 20), true),
+                            new LineSegment(new Point(7, 10), false),
+                            new LineSegment(new Point(0, 20), true),
+                            new LineSegment(new Point(-7, 10), true),
+                        }, false),
+                    }),
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 2,
+                    
+                };
+                TextBlock textBlock = new TextBlock()
+                {
+                    Text = isWork.ToString(),
+                    FontFamily = new FontFamily("Times New Roman"),
+                    FontSize = 14,
+                };
+
+                if (isWork == 0)
+                {
+                    myGrid.AddChildren(path, 0, 0, 1, 1, default(Color), false);
+                    path.HorizontalAlignment = HorizontalAlignment.Left;
+                    myGrid.AddChildren(textBlock, 1, 0, 1, 1, default(Color), false);
+                    textBlock.HorizontalAlignment = HorizontalAlignment.Right;
+                }
+                if (isWork == 1)
+                {
+                    myGrid.AddChildren(path, 1, 0, 1, 1, default(Color), false);
+                    path.HorizontalAlignment = HorizontalAlignment.Right;
+                    myGrid.AddChildren(textBlock, 0, 0, 1, 1, default(Color), false);
+                    textBlock.HorizontalAlignment = HorizontalAlignment.Left;
+                }
+            }
+          
+            
+
+            return myGrid;
         }
 
 

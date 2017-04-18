@@ -74,6 +74,7 @@ namespace Troubleshooting.ViewModels
             set
             {
                 value = (value / 10) * 10;
+                value = Math.Max(0, value);
                 if (_x == value) return;
                 _x = value;
                 OnPropertyChanged();
@@ -87,6 +88,7 @@ namespace Troubleshooting.ViewModels
             set
             {
                 value = (value / 10) * 10;
+                value = Math.Max(0, value);
                 if (_y == value) return;
                 _y = value;
                 foreach (var c in OutputConnections) c.SinkNode.OnInputConnectionsPositionsChanged();

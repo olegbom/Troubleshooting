@@ -310,11 +310,6 @@ namespace Troubleshooting.Views
             }
         }
 
-        private void MenuItemEnd_OnClick(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
         private void NodeView_OnMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (mouseHandlingMode != MouseHandlingMode.ConnectionRoute)
@@ -454,7 +449,10 @@ namespace Troubleshooting.Views
                     var indexSource = model.Nodes.IndexOf(connection.SourceNode);
                     var indexSink = model.Nodes.IndexOf(connection.SinkNode);
                     var connectionVm = new ConnectionViewModel(nodeVms[indexSource])
-                        { SinkNode = nodeVms[indexSink] };
+                    {
+                        SinkNode = nodeVms[indexSink],
+                        IsHitTestVisible = true
+                    };
                     ViewModel.Connections.Add(connectionVm);
                 }
             }
@@ -471,6 +469,7 @@ namespace Troubleshooting.Views
         private void MenuNew_OnClick(object sender, RoutedEventArgs e)
         {
             ViewModel.Nodes.Clear();
+            ViewModel.Connections.Clear();
         }
 
         private void MenuOpen_OnClick(object sender, RoutedEventArgs e)
