@@ -25,7 +25,7 @@ namespace Troubleshooting.ViewModels
         public int Count { get; }
         public int Level { get; }
 
-        public int[,] IsWorkMatrix { get;  }
+        public int[,] IsWorkMatrix { get; }
         public NodeViewModel[] Nodes { get; }
         public int[] Ones { get; }
         public int[] Zeros { get; }
@@ -35,7 +35,7 @@ namespace Troubleshooting.ViewModels
 
         public DependencyTableViewModel(DiagramEditorViewModel diagramEditorVm)
         {
-
+            TableDescription = "Таблица зависимостей";
             Count = diagramEditorVm.Nodes.Count;
             IsWorkMatrix = new int[Count, Count];
             Nodes = new NodeViewModel[Count];
@@ -61,8 +61,10 @@ namespace Troubleshooting.ViewModels
                 Solve();
         }
 
-        public DependencyTableViewModel(DependencyTableViewModel table, NodeViewModel[] nodes)
+        public DependencyTableViewModel(DependencyTableViewModel table, NodeViewModel[] nodes, int isWork)
         {
+
+            TableDescription = $"Таблица зависимостей при Z{table.Nodes[table.W.IndexOfMin()].Zindex +1} = {isWork}";
             Level = table.Level + 1;
             Count = nodes.Length;
             IsWorkMatrix = new int[Count, Count];
@@ -109,8 +111,8 @@ namespace Troubleshooting.ViewModels
                 else if (IsWorkMatrix[minWIndex, j] == 1) nodes1.Add(Nodes[j]);
             }
 
-            Childrens.Add(new DependencyTableViewModel(this, nodes0.ToArray()));
-            Childrens.Add(new DependencyTableViewModel(this, nodes1.ToArray()));
+            Childrens.Add(new DependencyTableViewModel(this, nodes0.ToArray(), 0));
+            Childrens.Add(new DependencyTableViewModel(this, nodes1.ToArray(), 1));
         }
 
 

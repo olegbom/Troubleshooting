@@ -6,20 +6,14 @@
         xmlns:local="clr-namespace:Troubleshooting.Views"
         mc:Ignorable="d" Width ="600" Height="700"
         d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <Grid Grid.Row="0" x:Name="DependencyDiagram">
-            
+    <ScrollViewer  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" x:Name="DependencyDiagram"/>
+            <Grid Grid.Row="1" x:Name="DependencyTable"/>
         </Grid>
-        
-        <Grid Grid.Row ="1"
-            x:Name="DependencyTable">
-            
-        </Grid>
-    </Grid>
-    
+    </ScrollViewer>
 </Window>

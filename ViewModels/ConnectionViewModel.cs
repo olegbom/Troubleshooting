@@ -11,7 +11,7 @@ namespace Troubleshooting.ViewModels
 {
     [Serializable]
     [ImplementPropertyChanged]
-    public class ConnectionViewModel: INotifyPropertyChanged, IDisposable
+    public class ConnectionViewModel: INotifyPropertyChanged
     {
         public bool SelectMode { get; set; }
         public bool HitMode { get; set; }
@@ -60,15 +60,44 @@ namespace Troubleshooting.ViewModels
             var vector = StartPoint - SinkNode.CenterPoint;
             double phi = Math.Atan2(vector.Y, vector.X);
 
-            if (phi < -3 * Math.PI / 4)
-                EndConnectionOrientation = Orientation.Left;
-            else if (phi < -Math.PI / 4)
-                EndConnectionOrientation = Orientation.Top;
-            else if (phi < Math.PI / 4)
-                EndConnectionOrientation = Orientation.Right;
-            else if (phi < 3 * Math.PI / 4)
-                EndConnectionOrientation = Orientation.Bottom;
-            else EndConnectionOrientation = Orientation.Left;
+            switch (SinkNode.OutOrientation)
+            {
+                case Orientation.Left:
+                    if (phi < -Math.PI / 4)
+                        EndConnectionOrientation = Orientation.Top;
+                    else if (phi < Math.PI / 4)
+                        EndConnectionOrientation = Orientation.Right;
+                    else EndConnectionOrientation = Orientation.Bottom;
+                    break;
+                case Orientation.Top:
+                    if (phi < -Math.PI / 2)
+                        EndConnectionOrientation = Orientation.Left;
+                    else if (phi < Math.PI / 4)
+                        EndConnectionOrientation = Orientation.Right;
+                    else if (phi < 3 * Math.PI / 4)
+                        EndConnectionOrientation = Orientation.Bottom;
+                    else EndConnectionOrientation = Orientation.Left;
+                    break;
+                case Orientation.Right:
+                    if (phi < -3 * Math.PI / 4)
+                        EndConnectionOrientation = Orientation.Left;
+                    else if (phi < 0)
+                        EndConnectionOrientation = Orientation.Top;
+                    else if (phi < 3 * Math.PI / 4)
+                        EndConnectionOrientation = Orientation.Bottom;
+                    else EndConnectionOrientation = Orientation.Left;
+                    break;
+                case Orientation.Bottom:
+                    if (phi < -3 * Math.PI / 4)
+                        EndConnectionOrientation = Orientation.Left;
+                    else if (phi < -Math.PI / 4)
+                        EndConnectionOrientation = Orientation.Top;
+                    else if (phi < Math.PI / 2)
+                        EndConnectionOrientation = Orientation.Right;
+                    else EndConnectionOrientation = Orientation.Left;
+                    break;
+            }
+            SinkNode.OnInputConnectionsPositionsChanged();
         }
 
         public Orientation EndConnectionOrientation { get; set; }
@@ -76,20 +105,7 @@ namespace Troubleshooting.ViewModels
 
 
         public Point LocalEndPoint => new Point(EndPoint.X - StartPoint.X, EndPoint.Y - StartPoint.Y);
-        public Point BezieEndPoint
-        {
-            get
-            {
-                switch (EndConnectionOrientation)
-                {
-                    case Orientation.Bottom: return LocalEndPoint + new Vector(0, 10);
-                    case Orientation.Right: return LocalEndPoint + new Vector(10, 0);
-                    case Orientation.Top: return LocalEndPoint + new Vector(0, -10);
-                    case Orientation.Left: return LocalEndPoint + new Vector(-10, 0);
-                    default: return LocalEndPoint + new Vector(-10, 0);
-                }
-            }
-        }
+        
 
         public Point LineSegment1
         {
@@ -97,16 +113,11 @@ namespace Troubleshooting.ViewModels
             {
                 switch (StartConnectionOrientation)
                 {
-                    case Orientation.Bottom:
-                        return new Point(0, (EndPoint.Y - StartPoint.Y + 10) / 2);
-                    case Orientation.Right:
-                        return new Point((EndPoint.X - StartPoint.X - 10) / 2, 0);
-                    case Orientation.Top:
-                        return new Point(0, (EndPoint.Y - StartPoint.Y - 10) / 2);
-                    case Orientation.Left:
-                        return new Point((EndPoint.X - StartPoint.X + 10) / 2, 0);
-                    default :
-                        return new Point((EndPoint.X - StartPoint.X - 10) / 2, 0);
+                    case Orientation.Bottom: return new Point(0, 10);
+                    case Orientation.Right: return new Point(10, 0);
+                    case Orientation.Top: return new Point(0, -10);
+                    case Orientation.Left: return new Point(-10, 0);
+                    default: return new Point(-10, 0);
                 }
                 
             }
@@ -118,16 +129,26 @@ namespace Troubleshooting.ViewModels
             {
                 switch (EndConnectionOrientation)
                 {
-                    case Orientation.Bottom:
-                        return new Point(EndPoint.X - StartPoint.X, (EndPoint.Y - StartPoint.Y + 10) / 2);
-                    case Orientation.Right:
-                        return new Point((EndPoint.X - StartPoint.X - 10) / 2, EndPoint.Y - StartPoint.Y);
-                    case Orientation.Top:
-                        return new Point(EndPoint.X - StartPoint.X, (EndPoint.Y - StartPoint.Y - 10) / 2);
-                    case Orientation.Left:
-                        return new Point((EndPoint.X - StartPoint.X + 10) / 2, EndPoint.Y - StartPoint.Y);
-                    default:
-                        return new Point((EndPoint.X - StartPoint.X - 10) / 2, EndPoint.Y - StartPoint.Y);
+                    case Orientation.Bottom: return LocalEndPoint + new Vector(0, 20);
+                    case Orientation.Right: return LocalEndPoint + new Vector(20, 0);
+                    case Orientation.Top: return LocalEndPoint + new Vector(0, -20);
+                    case Orientation.Left: return LocalEndPoint + new Vector(-20, 0);
+                    default: return LocalEndPoint + new Vector(-20, 0);
+                }
+            }
+        }
+
+        public Point BezieEndPoint
+        {
+            get
+            {
+                switch (EndConnectionOrientation)
+                {
+                    case Orientation.Bottom: return LocalEndPoint + new Vector(0, 10);
+                    case Orientation.Right: return LocalEndPoint + new Vector(10, 0);
+                    case Orientation.Top: return LocalEndPoint + new Vector(0, -10);
+                    case Orientation.Left: return LocalEndPoint + new Vector(-10, 0);
+                    default: return LocalEndPoint + new Vector(-10, 0);
                 }
             }
         }
@@ -192,11 +213,10 @@ namespace Troubleshooting.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void Dispose()
+        public void RemoveDependence()
         {
             SourceNode.OutputConnections.Remove(this);
             SinkNode?.InputConnections.Remove(this);
-
         }
 
        

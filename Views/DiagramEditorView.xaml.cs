@@ -59,9 +59,20 @@ namespace Troubleshooting.Views
                     {
                         if (ViewModel.Connections[i].SelectMode)
                         {
-                            ViewModel.Connections[i].Dispose();
+                            ViewModel.Connections[i].RemoveDependence();
                             ViewModel.Connections.RemoveAt(i--);
                         }
+                    }
+                }
+                if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
+                {
+                    if (e.Key == Key.C)
+                    {
+                        ContextCopy_OnClick(this, null);
+                    }
+                    if (e.Key == Key.V)
+                    {
+                        ContextPaste_OnClick(this, null);
                     }
                 }
             };
@@ -162,7 +173,7 @@ namespace Troubleshooting.Views
                         break;
                     case MouseHandlingMode.ConnectionRoute:
                         mouseHandlingMode = MouseHandlingMode.None;
-                        ViewModel.RoutedConnectionViewModel.Dispose();
+                        ViewModel.RoutedConnectionViewModel.RemoveDependence();
                         ViewModel.RoutedConnectionViewModel = null;
                         break;
                     case MouseHandlingMode.SelectRect:
@@ -209,16 +220,29 @@ namespace Troubleshooting.Views
             //Keyboard.Focus(DiagramGrid);
             if (e.LeftButton != MouseButtonState.Pressed) return;
 
+            origContentMouseDownPoint = e.GetPosition(DiagramGrid);
+
+            if (!(sender is NodeView node)) return;
+
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0)
-                return;
+            {
+
+                var oldState = node.ViewModel.SelectMode;
+                node.ViewModel.SelectMode = true;
+                ContextCopy_OnClick(this,null);
+                node.ViewModel.SelectMode = oldState;
+                ContextPaste_OnClick(this,null);
+            }
+                
             
             if (mouseHandlingMode != MouseHandlingMode.None)
                 return;
-            origContentMouseDownPoint = e.GetPosition(DiagramGrid);
+
+
+            
 
            
-            if (sender is NodeView node)
-            {
+            
                 node.CaptureMouse();
                 DraggedNodeView = node;
                 DraggedNodeViewModels = node.ViewModel.SelectMode 
@@ -229,7 +253,7 @@ namespace Troubleshooting.Views
                 
                 mouseHandlingMode = MouseHandlingMode.DraggingNode;
                 e.Handled = true;
-            }
+            
         }
 
         private void NodeView_OnRectSizeMouseDown(object sender, MouseButtonEventArgs e)
@@ -308,11 +332,6 @@ namespace Troubleshooting.Views
                 node.ViewModel.EditMode = false;
                 e.Handled = true;
             }
-        }
-
-        private void MenuItemEnd_OnClick(object sender, RoutedEventArgs e)
-        {
-            
         }
 
         private void NodeView_OnMouseUp(object sender, MouseButtonEventArgs e)
@@ -409,7 +428,7 @@ namespace Troubleshooting.Views
         private void ContextCopy_OnClick(object sender, RoutedEventArgs e)
         {
             var selectedNodes = ViewModel.Nodes.Where(x => x.SelectMode).ToList();
-           var selectedNodesModels = selectedNodes.Select(x => x.ConvertToModel()).ToList();
+            var selectedNodesModels = selectedNodes.Select(x => x.ConvertToModel()).ToList();
             var selectedConnections =
                 ViewModel.Connections
                 .Where(c => selectedNodes.Contains(c.SourceNode) &&
@@ -454,7 +473,10 @@ namespace Troubleshooting.Views
                     var indexSource = model.Nodes.IndexOf(connection.SourceNode);
                     var indexSink = model.Nodes.IndexOf(connection.SinkNode);
                     var connectionVm = new ConnectionViewModel(nodeVms[indexSource])
-                        { SinkNode = nodeVms[indexSink] };
+                    {
+                        SinkNode = nodeVms[indexSink],
+                        IsHitTestVisible = true
+                    };
                     ViewModel.Connections.Add(connectionVm);
                 }
             }
@@ -518,6 +540,10 @@ namespace Troubleshooting.Views
         }
 
 
-      
+        private void AlignLeft_OnClick(object sender, RoutedEventArgs e)
+        {
+            var bitmap   = Properties.Resources.Align_bottom;
+            MessageBox.Show(bitmap.Width.ToString());
+        }
     }
 }

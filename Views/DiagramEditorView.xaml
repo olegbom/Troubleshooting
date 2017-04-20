@@ -5,15 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Troubleshooting.Views"
         xmlns:vm="clr-namespace:Troubleshooting.ViewModels"
+        xmlns:properties="clr-namespace:Troubleshooting.Properties"
         mc:Ignorable="d"
         Title="DiagramEditorView" Height="500" Width="500">
     <Window.DataContext>
         <vm:DiagramEditorViewModel/>
     </Window.DataContext>
     <Window.Resources>
+        
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"></BooleanToVisibilityConverter>
     </Window.Resources>
-    
+   
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -35,6 +37,7 @@
             <MenuItem Header="Добавить новый блок" Click="MenuItemNewBlock_OnClick" ></MenuItem>
             <!--<MenuItem Header="Печать" Click="MenuPrint_OnClick"></MenuItem>-->
             <MenuItem Header="Таблица Зависимостей" IsEnabled ="{Binding Path=IsEnabled, ElementName=DiagramGrid,Mode=OneWay}"  Click="MenuDependencyTable_OnClick"></MenuItem>
+            
         </Menu>
 
 
@@ -44,6 +47,54 @@
                     <MenuItem Header="Копировать"  Click="ContextCopy_OnClick"/>
                     <MenuItem Header="Вставить" Click="ContextPaste_OnClick"></MenuItem>
                     <MenuItem Header="Добавить новый блок" Click="ContextNewNode_OnClick"></MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Выровнять..">
+                        <MenuItem.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Width="90" ItemWidth="30" ItemHeight="30"/>
+                            </ItemsPanelTemplate>
+                        </MenuItem.ItemsPanel>
+                        <MenuItem.ItemTemplate>
+                            <DataTemplate>
+                                
+                            </DataTemplate>
+                        </MenuItem.ItemTemplate>
+                        <MenuItem   Click="AlignLeft_OnClick">
+                            <MenuItem.Header>
+                                <Image Source="/Troubleshooting;component/Icons/Align-left.bmp" Height="24" Width="24" Margin="0"/>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem Header="по правому краю" Height="26">
+                            <MenuItem.Icon>
+                                <Image Source="/Troubleshooting;component/Icons/Align-right.bmp"  Height="24" Width="24"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="вертикально по центру" Height="26">
+                            <MenuItem.Icon>
+                                <Image Source="/Troubleshooting;component/Icons/Align-center-horizontal.bmp"  Height="24" Width="24"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="по верхнему краю" Height="26" >
+                            <MenuItem.Icon>
+                                <Image Source="/Troubleshooting;component/Icons/Align-top.bmp"  Height="24" Width="24"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="по нижнему краю" Height="26">
+                            <MenuItem.Icon>
+                                <Image Source="/Troubleshooting;component/Icons/Align-bottom.bmp"  Height="24" Width="24"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="горизонтально по центру" Height="26">
+                            <MenuItem.Icon>
+                                <Image Source="/Troubleshooting;component/Icons/Align-center-vertical.bmp"  Height="24" Width="24"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="по левому краю" Height="26">
+                            <MenuItem.Icon>
+                                <Image Source="pack://siteoforigin:,,,/Icons/Align-left.bmp"  Height="24" Width="24"></Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
                 </ContextMenu>
             </Grid.ContextMenu>
             <ItemsControl ItemsSource="{Binding DiagramItems}">
@@ -93,6 +144,7 @@
                 </ItemsControl.Resources>
 
             </ItemsControl>
+           
         </Grid>
         
       

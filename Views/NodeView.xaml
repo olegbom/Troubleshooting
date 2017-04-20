@@ -85,8 +85,13 @@
                    FontSize="14"/>
 
         <Grid Grid.ColumnSpan="3" Grid.RowSpan="3" Visibility="{Binding Path = EditMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
-            <Rectangle StrokeThickness="2" Stroke="Green" SnapsToDevicePixels="True" Margin="-3"
-                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch" StrokeDashArray="1 1" />
+            <Rectangle StrokeThickness="5" Stroke="DeepSkyBlue" SnapsToDevicePixels="True" Margin="-3"
+                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Rectangle.Effect>
+                    <BlurEffect Radius="5"/>
+                </Rectangle.Effect>
+            </Rectangle>
+
             <Rectangle x:Name="RectSizeBR" Style="{StaticResource EditRectangle}" Stroke="CadetBlue"
                        Fill="SkyBlue" VerticalAlignment="Bottom" HorizontalAlignment="Right" Cursor="SizeNWSE"
                        MouseDown="RectSizeBR_OnMouseDown" />
@@ -96,16 +101,24 @@
                         MouseDown="ConnectorOut_OnMouseDown" />
         </Grid>
         <Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3"
-                   StrokeThickness="4" Stroke="Blue" StrokeDashArray="1 1 0"
+                   StrokeThickness="5" Stroke="Green" StrokeDashArray="0.5 0.5 0"
                    SnapsToDevicePixels="True" Margin="-3"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                   Visibility="{Binding Path = ParentMode, Mode=OneWay, Converter={StaticResource BoolToVis}}"/>
+                   Visibility="{Binding Path = ParentMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+            <Rectangle.Effect>
+                <BlurEffect Radius="2"/>
+            </Rectangle.Effect>
+        </Rectangle>
 
         <Rectangle Grid.ColumnSpan="3" Grid.RowSpan="3"
-                   StrokeThickness="4" Stroke="Red" StrokeDashArray="0 1 1"
+                   StrokeThickness="5" Stroke="Red" StrokeDashArray="0 0.5 0.5"
                    SnapsToDevicePixels="True" Margin="-3"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                   Visibility="{Binding Path = ChildMode, Mode=OneWay, Converter={StaticResource BoolToVis}}"/>
+                   Visibility="{Binding Path = ChildMode, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+            <Rectangle.Effect>
+                <BlurEffect Radius="2"/>
+            </Rectangle.Effect>
+        </Rectangle>
 
     </Grid>
 </UserControl>

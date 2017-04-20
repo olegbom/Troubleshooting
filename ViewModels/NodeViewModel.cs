@@ -288,6 +288,8 @@ namespace Troubleshooting.ViewModels
             {
                 connection.StartConnectionOrientation = OutOrientation;
             }
+            OnCenterPointChanged();
+            OnInputConnectionsPositionsChanged();
         }
 
         public Point OutputConnectionPosition
