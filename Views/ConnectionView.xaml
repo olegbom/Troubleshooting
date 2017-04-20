@@ -36,10 +36,29 @@
                 <BlurEffect Radius="4" KernelType="Gaussian"></BlurEffect>
             </Path.Effect>
         </Path>
+
+        <!--<Path StrokeThickness="2" Stroke="DarkGreen" StrokeDashArray="2 2"
+              SnapsToDevicePixels="True">
+            <Path.Data>
+                <PathGeometry>
+                    <PathGeometry.Figures>
+                        <PathFigure StartPoint="0,0">
+                            <LineSegment  Point="{Binding LineSegment1}"/>
+                            <LineSegment  Point="{Binding LineSegment2}"/>
+                            <LineSegment  Point="{Binding BezieEndPoint}"/>
+                        </PathFigure>
+                    </PathGeometry.Figures>
+
+                </PathGeometry>
+            </Path.Data>
+        </Path>-->
+
         <Path StrokeThickness="2" Stroke="{Binding SelectMode, Converter={StaticResource BoolToBrushConverter}}"
               SnapsToDevicePixels="True" Data="{StaticResource PathGeometry}">
             
         </Path>
+        
+        
         
     </Grid>
     
