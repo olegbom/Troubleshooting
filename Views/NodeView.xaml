@@ -12,7 +12,8 @@
              MinHeight="{Binding MinHeight}" d:DesignHeight="50" 
              MinWidth="{Binding MinWidth}" d:DesignWidth="40" 
              Width="{Binding Width}" 
-             Height="{Binding Height}">
+             Height="{Binding Height}"
+             Opacity="{Binding Opacity}">
 
     
     <UserControl.Resources>
@@ -50,7 +51,7 @@
                 MouseDown="BorderMove_OnMouseDown">
             <Grid>
                 <troubleshooting:EditableTextBlock x:Name="Label"
-                        Text="{Binding Text, Mode=TwoWay}" Margin="10"
+                        Text="{Binding Text, Mode=TwoWay}" 
                         FontFamily="Times New Roman"
                         FontSize="16"
                         VerticalAlignment="Center"
@@ -79,6 +80,7 @@
                    troubleshooting:SizeObserver.ObservedWidth="{Binding ZindexWidth, Mode=OneWayToSource}"
                    Margin="{Binding ZindexMargin, Mode=OneWay}"
                    FontFamily="Times New Roman"
+                   SnapsToDevicePixels="True"
                    TextAlignment="Center"
                    HorizontalAlignment="Center" 
                    VerticalAlignment="Center" 
@@ -119,7 +121,7 @@
                 <BlurEffect Radius="2"/>
             </Rectangle.Effect>
         </Rectangle>
-
+       
     </Grid>
 </UserControl>
 

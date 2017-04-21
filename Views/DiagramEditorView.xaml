@@ -32,8 +32,7 @@
                 <MenuItem Header="Выход" Click="MenuClose_OnClick"/>
             </MenuItem>
             <MenuItem Header="Добавить новый блок" Click="MenuItemNewBlock_OnClick" ></MenuItem>
-            <!--<MenuItem Header="Печать" Click="MenuPrint_OnClick"></MenuItem>-->
-            <MenuItem Header="Таблица Зависимостей" IsEnabled ="{Binding Path=IsEnabled, ElementName=DiagramGrid,Mode=OneWay}"  Click="MenuDependencyTable_OnClick"></MenuItem>
+            <MenuItem Header="Таблица состояний" IsEnabled ="{Binding Path=IsEnabled, ElementName=DiagramGrid,Mode=OneWay}"  Click="MenuDependencyTable_OnClick"></MenuItem>
             
         </Menu>
 
@@ -45,7 +44,9 @@
                     <MenuItem Header="Копировать"  Click="ContextCopy_OnClick"/>
                     <MenuItem Header="Вставить" Click="ContextPaste_OnClick"></MenuItem>
                     <MenuItem Header="Добавить новый блок" Click="ContextNewNode_OnClick"></MenuItem>
-                    
+                    <Separator/>
+                    <MenuItem Header="Сохранить как картинку" Click="ContextSaveAsPicture_OnClick"></MenuItem>
+                    <MenuItem Header="Копировать как картинку" Click="ContextCopyAsPicture_OnClick"></MenuItem>
                 </ContextMenu>
             </Grid.ContextMenu>
             <ItemsControl ItemsSource="{Binding DiagramItems}">
@@ -96,12 +97,12 @@
 
             </ItemsControl>
            
+            
         </Grid>
-        
-      
-       
-        
-    
+
+
+
+
     </Grid>
 </Window>
 

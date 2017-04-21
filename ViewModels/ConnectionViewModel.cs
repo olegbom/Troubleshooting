@@ -15,7 +15,13 @@ namespace Troubleshooting.ViewModels
     {
         public bool SelectMode { get; set; }
         public bool HitMode { get; set; }
+
+        public bool WarSmokeMode { get; set; }
+
+        public double Opacity => WarSmokeMode ? 0.3 : 1;
+
         public bool IsHitTestVisible { get; set; }
+
 
 
         public NodeViewModel SourceNode { get; }

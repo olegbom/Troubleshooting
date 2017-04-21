@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.Win32;
 
 namespace Troubleshooting
 {
@@ -108,5 +111,74 @@ namespace Troubleshooting
                 return parent;
             return FindParent<T>(parentObject);
         }
+
+      
+        public static void CreateBitmap(this Visual target, string fileName)
+        {
+            if (target == null || string.IsNullOrEmpty(fileName))
+            {
+                return;
+            }
+
+            Rect bounds = VisualTreeHelper.GetDescendantBounds(target);
+
+            RenderTargetBitmap renderTarget = new RenderTargetBitmap((Int32)(bounds.Width*300/96), (Int32)(bounds.Height * 300 / 96), 300, 300, PixelFormats.Pbgra32);
+
+            DrawingVisual visual = new DrawingVisual();
+
+            using (DrawingContext context = visual.RenderOpen())
+            {
+                VisualBrush visualBrush = new VisualBrush(target);
+                context.DrawRectangle(visualBrush, null, new Rect(new Point(), bounds.Size));
+            }
+
+            renderTarget.Render(visual);
+            PngBitmapEncoder bitmapEncoder = new PngBitmapEncoder();
+            bitmapEncoder.Frames.Add(BitmapFrame.Create(renderTarget));
+            using (Stream stm = File.Create(fileName))
+            {
+                bitmapEncoder.Save(stm);
+            }
+        }
+
+        public static void ToClipboardAsPicture(this Visual target)
+        {
+
+            Rect bounds = VisualTreeHelper.GetDescendantBounds(target);
+
+            RenderTargetBitmap renderTarget = new RenderTargetBitmap((Int32)(bounds.Width * 220 / 96), (Int32)(bounds.Height * 220 / 96), 220, 220, PixelFormats.Pbgra32);
+
+            DrawingVisual visual = new DrawingVisual();
+
+            using (DrawingContext context = visual.RenderOpen())
+            {
+                VisualBrush visualBrush = new VisualBrush(target);
+                context.DrawRectangle(visualBrush, null, new Rect(new Point(), bounds.Size));
+            }
+
+            renderTarget.Render(visual);
+            
+            Clipboard.SetImage(renderTarget);
+            
+        }
+
+
+        private static readonly SaveFileDialog  SaveFileDialog = new SaveFileDialog
+                                                {
+                                                    FileName = "MyBitmap",
+                                                    DefaultExt = ".png",
+                                                    Filter = "PNG Picture (.png)|*.png"
+                                                };
+
+        public static void SaveAsPictureViaDialog(this Visual target)
+        {
+            // Process save file dialog box results
+            if (SaveFileDialog.ShowDialog() == true)
+            {
+                // Save document
+                target.CreateBitmap(SaveFileDialog.FileName);
+            }
+        }
+
     }
 }

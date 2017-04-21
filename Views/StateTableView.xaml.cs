@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -8,15 +9,15 @@ using Troubleshooting.ViewModels;
 namespace Troubleshooting.Views
 {
     /// <summary>
-    /// Логика взаимодействия для DependencyTableView.xaml
+    /// Логика взаимодействия для StateTableView.xaml
     /// </summary>
-    public partial class DependencyTableView : Window
+    public partial class StateTableView : Window
     {
-        public DependencyTableViewModel ViewModel { get; set; }
+        public StateTableViewModel ViewModel { get; set; }
 
         private static readonly FontFamily TimesNewRoman = new FontFamily("Times New Roman");
 
-        public DependencyTableView(DependencyTableViewModel viewModel)
+        public StateTableView(StateTableViewModel viewModel)
         {
             ViewModel = viewModel;
             InitializeComponent();
@@ -29,7 +30,7 @@ namespace Troubleshooting.Views
             CreateDependencyTable(ViewModel);
         }
 
-        public void AddMyTableToMetaGrid(DependencyTableViewModel myTable, int column, int row, int isWork)
+        public void AddMyTableToMetaGrid(StateTableViewModel myTable, int column, int row, int isWork)
         {
             Grid grid = LabelGrid(myTable, isWork);
             DependencyDiagram.AddChildren(grid, column, row, myTable.Count, 1, default(Color), false);
@@ -41,7 +42,7 @@ namespace Troubleshooting.Views
             }
         }
 
-        public Grid LabelGrid(DependencyTableViewModel myTable, int isWork)
+        public Grid LabelGrid(StateTableViewModel myTable, int isWork)
         {
             Grid myGrid = new Grid();
 
@@ -132,8 +133,18 @@ namespace Troubleshooting.Views
 
 
 
-        private void CreateDependencyTable(DependencyTableViewModel vm)
+        private void CreateDependencyTable(StateTableViewModel vm)
         {
+            foreach (var node in ViewModel.Nodes)
+            {
+                node.WarSmokeMode = true;
+            }
+
+            foreach (var node in vm.Nodes)
+            {
+                node.WarSmokeMode = false;
+            }
+
             DependencyTable.ColumnDefinitions.Clear();
             DependencyTable.RowDefinitions.Clear();
             DependencyTable.Children.Clear();
@@ -324,6 +335,37 @@ namespace Troubleshooting.Views
                     Margin = new Thickness(0, 0, 3, 0)
                 }, vm.Count + 3, i + 3, 1, 1, color);
             }
+        }
+
+        private void DependencyTableView_OnClosed(object sender, EventArgs e)
+        {
+            foreach (var node in ViewModel.Nodes)
+            {
+                node.WarSmokeMode = false;
+            }
+        }
+
+     
+
+        private void SaveToPictureDependencyDiagram_OnClick(object sender, RoutedEventArgs e)
+        {
+            DependencyDiagram.SaveAsPictureViaDialog();
+            
+        }
+
+        private void CopyAsPictureDependencyDiagram_OnClick(object sender, RoutedEventArgs e)
+        {
+            DependencyDiagram.ToClipboardAsPicture();
+        }
+
+        private void SaveToPictureDependencyTable_OnClick(object sender, RoutedEventArgs e)
+        {
+            DependencyTable.SaveAsPictureViaDialog();
+        }
+        
+        private void CopyAsPictureDependencyTable_OnClick(object sender, RoutedEventArgs e)
+        {
+            DependencyTable.ToClipboardAsPicture();
         }
     }
 }

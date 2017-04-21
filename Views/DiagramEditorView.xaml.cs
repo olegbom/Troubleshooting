@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Xps;
+using System.Windows.Xps.Packaging;
 using Microsoft.Win32;
 using Troubleshooting.Models;
 using Troubleshooting.ViewModels;
@@ -53,7 +58,8 @@ namespace Troubleshooting.Views
                 {
                     for (var i = 0; i < ViewModel.Nodes.Count; i++)
                     {
-                        if (ViewModel.Nodes[i].SelectMode) ViewModel.Nodes.RemoveAt(i--);
+                        if (ViewModel.Nodes[i].SelectMode)
+                            ViewModel.Nodes.RemoveAt(i--);
                     }
                     for (var i = 0; i < ViewModel.Connections.Count; i++)
                     {
@@ -351,15 +357,7 @@ namespace Troubleshooting.Views
                 ViewModel.RoutedConnectionViewModel = null;
             }
         }
-
-        private void MenuPrint_OnClick(object sender, RoutedEventArgs e)
-        {
-            PrintDialog printDialog = new PrintDialog();
-            if (printDialog.ShowDialog() == true)
-            {
-                printDialog.PrintVisual(DiagramGrid, "Печать схемы");
-            }
-        }
+   
 
         private bool mouseMoveConnectionBetweenDownAndUp;
         private ConnectionView clickedConnectionView;
@@ -412,8 +410,8 @@ namespace Troubleshooting.Views
 
         private void MenuDependencyTable_OnClick(object sender, RoutedEventArgs e)
         {
-            var dependencyTableViewModel = new DependencyTableViewModel(ViewModel);
-            var dependencyTableView = new DependencyTableView(dependencyTableViewModel);
+            var dependencyTableViewModel = new StateTableViewModel(ViewModel);
+            var dependencyTableView = new StateTableView(dependencyTableViewModel);
             DiagramGrid.IsEnabled = false;
 
             dependencyTableView.Closed += (o, args) =>
@@ -544,6 +542,16 @@ namespace Troubleshooting.Views
         {
             var bitmap   = Properties.Resources.Align_bottom;
             MessageBox.Show(bitmap.Width.ToString());
+        }
+
+        private void ContextSaveAsPicture_OnClick(object sender, RoutedEventArgs e)
+        {
+            DiagramGrid.SaveAsPictureViaDialog();
+        }
+
+        private void ContextCopyAsPicture_OnClick(object sender, RoutedEventArgs e)
+        {
+            DiagramGrid.ToClipboardAsPicture();
         }
     }
 }

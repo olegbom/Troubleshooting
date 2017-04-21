@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:Troubleshooting.Views"
              xmlns:conv="clr-namespace:Troubleshooting.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300" IsHitTestVisible="{Binding IsHitTestVisible}">
+             d:DesignHeight="300" d:DesignWidth="300" IsHitTestVisible="{Binding IsHitTestVisible}"
+             Opacity="{Binding Opacity}">
     
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
@@ -54,12 +55,8 @@
         </Path>-->
 
         <Path StrokeThickness="2" Stroke="{Binding SelectMode, Converter={StaticResource BoolToBrushConverter}}"
-              SnapsToDevicePixels="True" Data="{StaticResource PathGeometry}">
-            
-        </Path>
-        
-        
-        
+              SnapsToDevicePixels="True" Data="{StaticResource PathGeometry}"/>
+      
     </Grid>
     
 </UserControl>

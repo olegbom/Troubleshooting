@@ -57,6 +57,7 @@ namespace Troubleshooting.ViewModels
                         for (var i = node.InputConnections.Count - 1; i >= 0; i--)
                         {
                             var connection = node.InputConnections[i];
+                            connection.RemoveDependence();
                             Connections.Remove(connection);
                         }
 
@@ -64,6 +65,7 @@ namespace Troubleshooting.ViewModels
                         for (var i = node.OutputConnections.Count - 1; i >= 0; i--)
                         {
                             var connection = node.OutputConnections[i];
+                            connection.RemoveDependence();
                             Connections.Remove(connection);
                         }
 

@@ -34,7 +34,18 @@ namespace Troubleshooting.ViewModels
         public bool ChildMode { get; set; }
         public bool InvSelectMode => !SelectMode;
         public bool IntersectsMode { get; set; }
-        
+        public bool WarSmokeMode { get; set; }
+
+        public void OnWarSmokeModeChanged()
+        {
+            foreach (var connection in OutputConnections)
+            {
+                connection.WarSmokeMode = WarSmokeMode;
+            }
+        }
+
+        public double Opacity => WarSmokeMode ? 0.3 : 1;
+
         public double ZindexWidth { get; set; }
         public double ZindexHeight { get; set; }
 

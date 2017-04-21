@@ -9,10 +9,10 @@ using Troubleshooting.Annotations;
 namespace Troubleshooting.ViewModels
 {
     [ImplementPropertyChanged]
-    public class DependencyTableViewModel: INotifyPropertyChanged
+    public class StateTableViewModel: INotifyPropertyChanged
     {
 
-        public List<DependencyTableViewModel> Childrens { get; } = new List<DependencyTableViewModel>();
+        public List<StateTableViewModel> Childrens { get; } = new List<StateTableViewModel>();
 
         public int TableDepth
         {
@@ -33,9 +33,9 @@ namespace Troubleshooting.ViewModels
 
         public string TableDescription { get; set; }
 
-        public DependencyTableViewModel(DiagramEditorViewModel diagramEditorVm)
+        public StateTableViewModel(DiagramEditorViewModel diagramEditorVm)
         {
-            TableDescription = "Таблица зависимостей";
+            TableDescription = "Таблица состояний";
             Count = diagramEditorVm.Nodes.Count;
             IsWorkMatrix = new int[Count, Count];
             Nodes = new NodeViewModel[Count];
@@ -61,10 +61,10 @@ namespace Troubleshooting.ViewModels
                 Solve();
         }
 
-        public DependencyTableViewModel(DependencyTableViewModel table, NodeViewModel[] nodes, int isWork)
+        public StateTableViewModel(StateTableViewModel table, NodeViewModel[] nodes, int isWork)
         {
 
-            TableDescription = $"Таблица зависимостей при Z{table.Nodes[table.W.IndexOfMin()].Zindex +1} = {isWork}";
+            TableDescription = $"Таблица состояний при Z{table.Nodes[table.W.IndexOfMin()].Zindex +1} = {isWork}";
             Level = table.Level + 1;
             Count = nodes.Length;
             IsWorkMatrix = new int[Count, Count];
@@ -111,8 +111,8 @@ namespace Troubleshooting.ViewModels
                 else if (IsWorkMatrix[minWIndex, j] == 1) nodes1.Add(Nodes[j]);
             }
 
-            Childrens.Add(new DependencyTableViewModel(this, nodes0.ToArray(), 0));
-            Childrens.Add(new DependencyTableViewModel(this, nodes1.ToArray(), 1));
+            Childrens.Add(new StateTableViewModel(this, nodes0.ToArray(), 0));
+            Childrens.Add(new StateTableViewModel(this, nodes1.ToArray(), 1));
         }
 
 
